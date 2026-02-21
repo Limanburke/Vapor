@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="VaporDomain/VaporDomain.csproj" />
+  <Project Path="VaporInfrastructure/VaporInfrastructure.csproj" />
+</Solution>
