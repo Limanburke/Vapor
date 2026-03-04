@@ -1,0 +1,75 @@
+﻿@model VaporDomain.Model.Game
+
+@{
+    ViewData["Title"] = "Створити";
+}
+@if (ViewBag.PublisherName != null)
+{
+    <h1>Додавання гри до видавця @ViewBag.PublisherName</h1>
+}
+else
+{
+    <h1>Створення гри</h1>
+}
+<h4>Гра</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                @if (ViewBag.IsContextual == true)
+                {
+                <input type="hidden" value="@ViewBag.PublisherId" name="PublisherId" />
+                }
+                else
+                {
+                <div class="form-group">
+                    <label asp-for="PublisherId" class="control-label"></label>
+                    <select asp-for="PublisherId" class="form-control" asp-items="ViewBag.PublisherId"></select>
+                </div>
+                }
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsAvailable" /> @Html.DisplayNameFor(model => model.IsAvailable)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReleasedDate" class="control-label"></label>
+                <input asp-for="ReleasedDate" class="form-control" />
+                <span asp-validation-for="ReleasedDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label"></label>
+                <select name="selectedGenres" class="form-control" asp-items="ViewBag.Genres" multiple="multiple"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Створити" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Назад до списку</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
