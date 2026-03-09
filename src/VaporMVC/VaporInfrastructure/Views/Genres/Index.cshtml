@@ -15,7 +15,8 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th></th>
+            <th>Кількість ігор</th>
+             <th></th>
         </tr>
     </thead>
     <tbody>
@@ -23,6 +24,9 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                    @item.Games.Count
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |

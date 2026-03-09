@@ -56,6 +56,33 @@
             
                 <br />
             }
+        </dd>
+        <dd class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Reviews)
+        </dd>
+        <dd class="col-sm-10">
+            @foreach (var review in Model.Reviews)
+            {
+                <span>Користувач @review.User.Username</span>
+                <span>Рейтинг @review.Raiting</span>
+                <span>Коментарій @review.Content</span>
+                <br />
+            }
+        </dd>
+        <dd class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PriceHistories)
+        </dd>
+        <dd class="col-sm-10">
+            @foreach (var priceHist in Model.PriceHistories)
+            {
+                <span>Стара ціна @priceHist.OldPrice</span>
+                <span>Нова ціна @priceHist.NewPrice</span>
+                <span>Дата зміни @priceHist.ChangedData</span>
+                <br />
+            }
+        </dd>
+
+        <a asp-controller="Reviews" asp-action="Create" asp-route-gameId="@Model.Id" >Написати відгук</a>
     </dl>
 </div>
 <div>

@@ -25,13 +25,13 @@ namespace VaporInfrastructure.Controllers
         {
             if (id == null)
             {
-                var allGames = _context.Games.Include(g => g.Publisher).Include(g => g.Genres);
+                var allGames = _context.Games.Include(g => g.Publisher).Include(g => g.Genres).Include(g => g.Reviews);
                 return View(await allGames.ToListAsync());
             }
 
             ViewBag.PublisherId = id;
             ViewBag.PublisherName = name;
-            var gamesByPublisher = _context.Games.Where(g => g.PublisherId == id).Include(g => g.Publisher).Include(g => g.Genres);
+            var gamesByPublisher = _context.Games.Where(g => g.PublisherId == id).Include(g => g.Publisher).Include(g => g.Genres).Include(g => g.Reviews);
             return View(await gamesByPublisher.ToListAsync());
         }
 
@@ -46,6 +46,9 @@ namespace VaporInfrastructure.Controllers
             var game = await _context.Games
                 .Include(g => g.Publisher)
                 .Include(g => g.Genres)
+                .Include(g => g.PriceHistories)
+                .Include(g => g.Reviews)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (game == null)
             {
@@ -88,6 +91,7 @@ namespace VaporInfrastructure.Controllers
                 var genres = _context.Genres.Where(g => selectedGenres.Contains(g.Id)).ToList();
                 game.Genres = genres;
             }
+
             ModelState.Clear();
             TryValidateModel(game);
 
@@ -152,6 +156,18 @@ namespace VaporInfrastructure.Controllers
             {
                 try
                 {
+                    if(game.Price != gameToUpdate.Price)
+                    {
+                        var priceHistory = new PriceHistory
+                        {
+                            GameId = game.Id,
+                            OldPrice = gameToUpdate.Price,
+                            NewPrice = game.Price,
+                            ChangedData = DateOnly.FromDateTime(DateTime.Now)
+                        };
+                        _context.PriceHistories.Add(priceHistory);
+                    }
+
                     gameToUpdate.Title = game.Title;
                     gameToUpdate.Price = game.Price;
                     gameToUpdate.Description = game.Description;

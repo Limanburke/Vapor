@@ -1,4 +1,5 @@
-﻿@model VaporDomain.Model.User
+﻿@*
+@model VaporDomain.Model.Status
 
 @{
     ViewData["Title"] = "Видалити";
@@ -6,22 +7,16 @@
 
 <h1>Видалити</h1>
 
-<h3>Ви впевенні, що хочете видалити це?</h3>
+<h3>Ви впевненні, що хочете видалити це?</h3>
 <div>
-    <h4>Користувач</h4>
+    <h4>Статус</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Username)
+            @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Username)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
+            @Html.DisplayFor(model => model.Name)
         </dd>
     </dl>
     
@@ -31,3 +26,4 @@
         <a asp-action="Index">Назад до списку</a>
     </form>
 </div>
+*@

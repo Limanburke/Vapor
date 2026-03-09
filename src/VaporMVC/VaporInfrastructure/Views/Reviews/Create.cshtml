@@ -3,8 +3,14 @@
 @{
     ViewData["Title"] = "Створити";
 }
-
-<h1>Створити</h1>
+@if (ViewBag.GameTitle != null)
+{
+    <h1>Додавання відгука до гри @ViewBag.GameTitle</h1>
+}
+else
+{
+    <h1>Створення відгука</h1>
+}
 
 <h4>Відгук</h4>
 <hr />
@@ -13,12 +19,19 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="GameId" class="control-label"></label>
-                <select asp-for="GameId" class ="form-control" asp-items="ViewBag.GameId"></select>
+                @if (ViewBag.IsContextual == true)
+                {
+                    <input type="hidden" value="@ViewBag.GameId" name="GameId" />
+                }
+                else
+                {
+                    <label asp-for="GameId" class="control-label"></label>
+                    <select asp-for="GameId" class="form-control" asp-items="ViewBag.GameId"></select>
+                }
             </div>
             <div class="form-group">
                 <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
+                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Content" class="control-label"></label>
@@ -47,5 +60,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

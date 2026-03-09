@@ -10,23 +10,23 @@ using VaporInfrastructure;
 
 namespace VaporInfrastructure.Controllers
 {
-    public class GenresController : Controller
+    public class OrderItemsController : Controller
     {
         private readonly VaporContext _context;
 
-        public GenresController(VaporContext context)
+        public OrderItemsController(VaporContext context)
         {
             _context = context;
         }
 
-        // GET: Genres
+        // GET: OrderItems
         public async Task<IActionResult> Index()
         {
-            var genres = await _context.Genres.Include(g => g.Games).ToListAsync();
-            return View(genres);
+            var vaporContext = _context.OrderItems.Include(o => o.Game).Include(o => o.Order);
+            return View(await vaporContext.ToListAsync());
         }
 
-        // GET: Genres/Details/5
+        // GET: OrderItems/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,40 +34,45 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres
-                .Include(g => g.Games)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (genre == null)
+            var orderItem = await _context.OrderItems
+                .Include(o => o.Game)
+                .Include(o => o.Order)
+                .FirstOrDefaultAsync(m => m.GameId == id);
+            if (orderItem == null)
             {
                 return NotFound();
             }
 
-            return View(genre);
+            return View(orderItem);
         }
 
-        // GET: Genres/Create
+        // GET: OrderItems/Create
         public IActionResult Create()
         {
+            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title");
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id");
             return View();
         }
 
-        // POST: Genres/Create
+        // POST: OrderItems/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Id")] Genre genre)
+        public async Task<IActionResult> Create([Bind("GameId,OrderId,Price")] OrderItem orderItem)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(genre);
+                _context.Add(orderItem);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(genre);
+            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", orderItem.GameId);
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderItem.OrderId);
+            return View(orderItem);
         }
 
-        // GET: Genres/Edit/5
+        // GET: OrderItems/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -75,22 +80,24 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres.FindAsync(id);
-            if (genre == null)
+            var orderItem = await _context.OrderItems.FindAsync(id);
+            if (orderItem == null)
             {
                 return NotFound();
             }
-            return View(genre);
+            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", orderItem.GameId);
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderItem.OrderId);
+            return View(orderItem);
         }
 
-        // POST: Genres/Edit/5
+        // POST: OrderItems/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Genre genre)
+        public async Task<IActionResult> Edit(int id, [Bind("GameId,OrderId,Price")] OrderItem orderItem)
         {
-            if (id != genre.Id)
+            if (id != orderItem.GameId)
             {
                 return NotFound();
             }
@@ -99,12 +106,12 @@ namespace VaporInfrastructure.Controllers
             {
                 try
                 {
-                    _context.Update(genre);
+                    _context.Update(orderItem);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GenreExists(genre.Id))
+                    if (!OrderItemExists(orderItem.GameId))
                     {
                         return NotFound();
                     }
@@ -115,10 +122,12 @@ namespace VaporInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(genre);
+            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", orderItem.GameId);
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderItem.OrderId);
+            return View(orderItem);
         }
 
-        // GET: Genres/Delete/5
+        // GET: OrderItems/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -126,44 +135,36 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres
-                .FirstOrDefaultAsync(m => m.Id == id);
-            ViewBag.GenreName = genre?.Name;
-            if (genre == null)
+            var orderItem = await _context.OrderItems
+                .Include(o => o.Game)
+                .Include(o => o.Order)
+                .FirstOrDefaultAsync(m => m.GameId == id);
+            if (orderItem == null)
             {
                 return NotFound();
             }
 
-            return View(genre);
+            return View(orderItem);
         }
 
-        // POST: Genres/Delete/5
+        // POST: OrderItems/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var genre = await _context.Genres
-                                .Include(g => g.Games)
-                                .FirstOrDefaultAsync(m => m.Id == id);
-            //var genre = await _context.Genres.FindAsync(id);
-            if (genre != null)
+            var orderItem = await _context.OrderItems.FindAsync(id);
+            if (orderItem != null)
             {
-                ViewBag.GenreName = genre?.Name;
-                if (genre.Games.Any())
-                {
-                    ViewBag.ErrorMessage = $"Неможливо видалити жанр \"{genre.Name}\", оскільки до нього прив'язано {genre.Games.Count} ігор.";
-                    return View("Delete", genre);
-                }
-                _context.Genres.Remove(genre);
+                _context.OrderItems.Remove(orderItem);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GenreExists(int id)
+        private bool OrderItemExists(int id)
         {
-            return _context.Genres.Any(e => e.Id == id);
+            return _context.OrderItems.Any(e => e.GameId == id);
         }
     }
 }
