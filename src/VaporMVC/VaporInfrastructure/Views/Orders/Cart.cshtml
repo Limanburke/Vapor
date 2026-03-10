@@ -1,0 +1,58 @@
+﻿@model VaporDomain.Model.Order
+
+@{
+    ViewData["Title"] = "Кошик";
+}
+
+<h1>Кошик</h1>
+
+@if (Model == null)
+{
+    <span>Кошик порожній</span>
+}
+else
+{    
+<div>
+    <h4>Замовлення</h4>
+    <dl class="row">
+
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.CreatedDate)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.CreatedDate)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Status)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Status.Name)
+            </dd>
+            <dt class="col-sm-2">
+                <label>Ігри з замовлення</label>
+            </dt>
+            <dd class="col-sm-10">
+                @foreach (var item in Model.OrderItems)
+                {
+                    <div class="row">
+                        <div class="col-6">
+                            @item.Game.Title
+                        </div>
+                        <div class="col-4">
+                            @item.Price $
+                        </div>
+                        <div class="col-2">
+                            <form asp-controller="Orders" asp-action="DeleteFromCart" asp-route-gameId="@item.GameId" method="post">
+                                <button type="submit">X</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                <label>Загальна ціна: @ViewBag.totalPrice $</label>
+            </dd>
+    </dl>
+    <form asp-controller="Orders" asp-action="Checkout" asp-route-orderId="@Model.Id" method="post">
+        <button type="submit">Оформити замовлення</button>
+    </form>
+</div>
+}

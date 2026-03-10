@@ -83,6 +83,9 @@
         </dd>
 
         <a asp-controller="Reviews" asp-action="Create" asp-route-gameId="@Model.Id" >Написати відгук</a>
+        <form asp-controller="Orders" asp-action="AddToCart" asp-route-gameId="@Model.Id" method="post">
+            <button type="submit">Покласти в кошик</button>
+        </form>
     </dl>
 </div>
 <div>

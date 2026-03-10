@@ -28,9 +28,26 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.User.Email)
         </dd>
+        <dt class="col-sm-2">
+            <label>Ігри з замовлення</label>
+        </dt>
+        <dd class="col-sm-10">
+            @foreach (var item in Model.OrderItems)
+            {
+                <div class="row">
+                    <div class="col-8">
+                        @item.Game.Title
+                    </div>
+                    <div class="col-4">
+                        @item.Price $
+                    </div>
+                </div>
+            }
+            <label>Загальна ціна: @ViewBag.totalPrice $</label>
+        </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Редагувати</a> |
+    @*<a asp-action="Edit" asp-route-id="@Model?.Id">Редагувати</a> |*@
     <a asp-action="Index">Назад до списку</a>
 </div>

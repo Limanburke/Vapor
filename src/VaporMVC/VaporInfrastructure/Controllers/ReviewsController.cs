@@ -47,115 +47,115 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Reviews/Create
-        //public IActionResult Create(int? gameId)
-        //{
-        //    if (gameId != null)
-        //    {
-        //        var review = _context.Games.FirstOrDefault(r => r.Id == gameId);
-        //        ViewBag.GameId = review?.Id;
-        //        ViewBag.GameTitle = review?.Title;
-        //        ViewBag.IsContextual = true;
-        //    }
-        //    else
-        //    {
-        //        ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title");
-        //        ViewBag.IsContextual = false;
-        //    }
-        //    ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email");
-        //    return View();
-        //}
+        public IActionResult Create(int? gameId)
+        {
+            if (gameId != null)
+            {
+                var review = _context.Games.FirstOrDefault(r => r.Id == gameId);
+                ViewBag.GameId = review?.Id;
+                ViewBag.GameTitle = review?.Title;
+                ViewBag.IsContextual = true;
+            }
+            else
+            {
+                ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title");
+                ViewBag.IsContextual = false;
+            }
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email");
+            return View();
+        }
 
         // POST: Reviews/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("GameId,UserId,Content,Raiting,CreatedDate,Id")] Review review)
-        //{
-        //    bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
-        //    bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
-        //    if (!(gameExists && userExists))
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("GameId,UserId,Content,Raiting,CreatedDate,Id")] Review review)
+        {
+            bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
+            bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
+            if (!(gameExists && userExists))
+            {
+                return NotFound();
+            }
 
-        //    ModelState.Remove("Game");
-        //    ModelState.Remove("User");
+            ModelState.Remove("Game");
+            ModelState.Remove("User");
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(review);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction("Details", "Games", new { id = review.GameId });
-        //        //return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
-        //    return View(review);
-        //}
+            if (ModelState.IsValid)
+            {
+                _context.Add(review);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", "Games", new { id = review.GameId });
+                //return RedirectToAction(nameof(Index));
+            }
+            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
+            return View(review);
+        }
 
         // GET: Reviews/Edit/5
 
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-        //    var review = await _context.Reviews.FindAsync(id);
-        //    if (review == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
-        //    return View(review);
-        //}
+            var review = await _context.Reviews.FindAsync(id);
+            if (review == null)
+            {
+                return NotFound();
+            }
+            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
+            return View(review);
+        }
 
         // POST: Reviews/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("GameId,UserId,Content,Raiting,CreatedDate,Id")] Review review)
-        //{
-        //    bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
-        //    bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
-        //    if (!(gameExists && userExists))
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("GameId,UserId,Content,Raiting,CreatedDate,Id")] Review review)
+        {
+            bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
+            bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
+            if (!(gameExists && userExists))
+            {
+                return NotFound();
+            }
 
-        //    ModelState.Remove("Game");
-        //    ModelState.Remove("User");
+            ModelState.Remove("Game");
+            ModelState.Remove("User");
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(review);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!ReviewExists(review.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
-        //    return View(review);
-        //}
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(review);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ReviewExists(review.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
+            return View(review);
+        }
 
         // GET: Reviews/Delete/5
         public async Task<IActionResult> Delete(int? id)

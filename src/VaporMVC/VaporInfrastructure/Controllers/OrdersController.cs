@@ -37,12 +37,16 @@ namespace VaporInfrastructure.Controllers
             var order = await _context.Orders
                 .Include(o => o.Status)
                 .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Game)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (order == null)
             {
                 return NotFound();
             }
 
+            ViewBag.totalPrice = order.OrderItems?.Sum(o => o.Price) ?? 0;
             return View(order);
         }
 
@@ -50,17 +54,17 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int? gameId)
         {
-            int CurrentUserId = 1; // placeholder
+            int currentUserId = 1; // placeholder
 
             var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
             if (game == null) return NotFound();
-            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.UserId == CurrentUserId && o.StatusId == 1);
+            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
             if (order == null)
             {
 
                 order = new Order
                 {
-                    UserId = CurrentUserId,
+                    UserId = currentUserId,
                     StatusId = 1,
                     CreatedDate = DateOnly.FromDateTime(DateTime.Now),
                 };
@@ -85,6 +89,53 @@ namespace VaporInfrastructure.Controllers
 
 
             return RedirectToAction("Details", "Games", new { id = gameId });
+        }
+
+        public async Task<IActionResult> Cart()
+        {
+            int currentUserId = 1; // placeholder
+            var cart = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(g => g.Game)
+                .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
+
+            ViewBag.totalPrice = cart?.OrderItems.Sum(o => o.Price) ?? 0;
+
+            return View(cart);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteFromCart(int? gameId)
+        {
+            int currentUserId = 1; // placeholder
+            var cart = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
+            var itemToRemove = cart?.OrderItems.FirstOrDefault(g => g.GameId == gameId);
+            if (itemToRemove != null)
+            {
+                cart.OrderItems.Remove(itemToRemove);
+                _context.OrderItems.Remove(itemToRemove);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Cart));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Checkout(int? orderId)
+        {
+            if(orderId == null)
+            {
+                return NotFound();
+            }
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            order.StatusId = 2; //payed
+            //_context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Cart));
         }
 
         // GET: Orders/Create
@@ -172,40 +223,49 @@ namespace VaporInfrastructure.Controllers
         //}
 
         // GET: Orders/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-        //    var order = await _context.Orders
-        //        .Include(o => o.Status)
-        //        .Include(o => o.User)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (order == null)
-        //    {
-        //        return NotFound();
-        //    }
+            var order = await _context.Orders
+                .Include(o => o.Status)
+                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Game)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
-        //    return View(order);
-        //}
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.totalPrice = order.OrderItems?.Sum(o => o.Price) ?? 0;
+            return View(order);
+        }
 
         // POST: Orders/Delete/5
 
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var order = await _context.Orders.FindAsync(id);
-        //    if (order != null)
-        //    {
-        //        _context.Orders.Remove(order);
-        //    }
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(m => m.Id == id);
+            if (order != null)
+            {
+                foreach (var item in order.OrderItems)
+                {
+                    _context.OrderItems.Remove(item);
+                }
+                _context.Orders.Remove(order);
+            }
 
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
         private bool OrderExists(int id)
         {
