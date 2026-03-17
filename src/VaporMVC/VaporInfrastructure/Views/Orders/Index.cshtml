@@ -4,44 +4,52 @@
     ViewData["Title"] = "Замовлення";
 }
 
-<h1>Замовлення</h1>
-
-@*<p>
-    <a asp-action="Create">Створити нове замовлення</a>
-</p>*@
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Email)
-            </td>
-            <td>
-                @*<a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |*@
-                <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<h1 class="text-info">Журнал замовлень</h1>
+<div class="alert alert-secondary bg-transparent border-secondary mt-3 mb-4" role="alert">
+    <strong>Системний журнал:</strong> Замовлення формуються автоматично при використанні кошика покупцями. Ручне створення і редагування вимкнено.
+</div>
+<div class="card bg-transparent border-primary p-3">
+    <table class="table table-hover mb-0 align-middle">
+        <thead>
+            <tr class="table-primary">
+                <th>Чек</th>
+                <th>@Html.DisplayNameFor(model => model.CreatedDate)</th>
+                <th>@Html.DisplayNameFor(model => model.User)</th>
+                <th>@Html.DisplayNameFor(model => model.Status)</th>
+                <th class="text-end">Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold text-light">#@item.Id</td>
+                    <td> @Html.DisplayFor(modelItem => item.CreatedDate) </td>
+                    <td> @Html.DisplayFor(modelItem => item.User.Email) </td>
+                    <td>
+                        @if (item.StatusId == 1)
+                        {
+                            <span class="badge bg-warning text-dark">@item.Status.Name</span>
+                        }
+                        else if (item.StatusId == 2)
+                        {
+                            <span class="badge bg-success">@item.Status.Name</span>
+                        }
+                        else if (item.StatusId == 3)
+                        {
+                            <span class="badge bg-danger">@item.Status.Name</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@item.Status.Name</span>
+                        }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Деталі чека</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Видалити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

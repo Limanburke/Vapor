@@ -3,98 +3,81 @@
 @{
     ViewData["Title"] = "Ігри";
 }
+
 @if (ViewBag.PublisherId != null)
 {
-    <h1>Ігри за видавником @ViewBag.PublisherName</h1>
-    <p>
-        @*<a asp-action="Create" asp-route-id="@ViewBag.PublisherId">Додати нову гру</a>*@
-        @Html.ActionLink("Додайте нову гру", "Create", new { publisherId = ViewBag.PublisherId })
-    </p>
+    <h1 class="text-info">
+        Ігри від видавця
+        <span class="text-light">@ViewBag.PublisherName</span>
+    </h1>
+    <div class="mt-3 mb-4">
+        <a asp-action="Create" asp-route-publisherId="@ViewBag.PublisherId" class="btn btn-primary">Додати нову гру</a>
+        <a asp-controller="Publishers" asp-action="Index" class="btn btn-secondary ms-2">Назад до видавців</a>
+    </div>
 }
 else
 {
-    <h1>Усі ігри</h1>
-    <p>
+    <h1 class="text-info">Усі ігри</h1>
+    <div class="mt-3 mb-4">
         <a asp-action="Create" class="btn btn-primary">Додати нову гру</a>
-    </p>
+    </div>
 }
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsAvailable)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReleasedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Publisher)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Genres)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Reviews)
-            </th>
-            <th>
-                Середня оцінка
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsAvailable)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Price)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ReleasedDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Publisher.Name)
-                </td>
-                <td>
-                    @string.Join(", ", item.Genres.Select(g => g.Name))
-                </td>
-                <td>
-                    @item.Reviews.Count
-                </td>
-                <td>
-                    @if (item.Reviews.Any())
-                    {
-                        @item.Reviews.Average(r => r.Raiting).ToString("0.00")
-                    }
-                    else
-                    {
-                        <span>Немає оцінок</span>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
-                </td>
+
+<div class="card bg-transparent border-primary p-3 table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+        <thead>
+            <tr class="table-primary">
+                <th>@Html.DisplayNameFor(model => model.Title)</th>
+                <th>Статус</th>
+                <th>@Html.DisplayNameFor(model => model.Price)</th>
+                <th>@Html.DisplayNameFor(model => model.ReleasedDate)</th>
+                <th>@Html.DisplayNameFor(model => model.Publisher)</th>
+                <th>@Html.DisplayNameFor(model => model.Genres)</th>
+                <th>Відгуки</th>
+                <th>Оцінка</th>
+                <th class="text-end">Дії</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold text-light"> @Html.DisplayFor(modelItem => item.Title) </td>
+                    <td>
+                        @if (item.IsAvailable)
+                        {
+                            <span class="badge bg-success">У продажу</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Приховано</span>
+                        }
+                    </td>
+                    <td class="text-success fw-bold"> @Html.DisplayFor(modelItem => item.Price) </td>
+                    <td> @Html.DisplayFor(modelItem => item.ReleasedDate) </td>
+                    <td> @Html.DisplayFor(modelItem => item.Publisher.Name) </td>
+                    <td style="max-width: 150px;" class="text-truncate text-info" title="@string.Join(", ", item.Genres.Select(g => g.Name))"> 
+                        @string.Join(", ", item.Genres.Select(g => g.Name)) </td>
+                    <td>
+                        <span class="badge bg-secondary rounded-pill">@item.Reviews.Count</span>
+                    </td>
+                    <td class="text-warning fw-bold">
+                        @if (item.Reviews.Any())
+                        {
+                            <span>⭐ @item.Reviews.Average(r => r.Raiting).ToString("0.0")</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted fw-normal">Немає</span>
+                        }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Редагувати</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Деталі</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Видалити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -29,6 +29,7 @@ public partial class Game : Entity
     [DataType(DataType.Currency)]
     [Column(TypeName = "decimal(10, 2)")]
     [DisplayName("Ціна")]
+    [Range(minimum: 0, maximum: 99999999.99, ErrorMessage = "Поле ціна має містити значення в межах {1} та {2}")]
     public decimal Price { get; set; }
 
     [Required(ErrorMessage = "Дата виходу є обов'язковою")]

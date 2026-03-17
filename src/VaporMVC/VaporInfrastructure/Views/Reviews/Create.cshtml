@@ -1,62 +1,64 @@
 ﻿@model VaporDomain.Model.Review
 
 @{
-    ViewData["Title"] = "Створити";
+    ViewData["Title"] = "Створити відгук";
 }
+
 @if (ViewBag.GameTitle != null)
 {
-    <h1>Додавання відгука до гри @ViewBag.GameTitle</h1>
+    <h1 class="text-info">
+        Додавання відгуку до гри
+        <span class="text-light">@ViewBag.GameTitle</span>
+    </h1>
 }
 else
 {
-    <h1>Створення відгука</h1>
+    <h1 class="text-info">Створення відгуку</h1>
 }
-
-<h4>Відгук</h4>
-<hr />
+<h4 class="text-primary mt-3">Відгук</h4>
+<hr class="border-primary" />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                @if (ViewBag.IsContextual == true)
-                {
-                    <input type="hidden" value="@ViewBag.GameId" name="GameId" />
-                }
-                else
-                {
-                    <label asp-for="GameId" class="control-label"></label>
-                    <select asp-for="GameId" class="form-control" asp-items="ViewBag.GameId"></select>
-                }
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Content" class="control-label"></label>
-                <input asp-for="Content" class="form-control" />
-                <span asp-validation-for="Content" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Raiting" class="control-label"></label>
-                <input asp-for="Raiting" class="form-control" />
-                <span asp-validation-for="Raiting" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Створити" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="col-md-6">
+        <div class="card bg-transparent border-primary p-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold"></div>
+                <div class="mb-3">
+                    @if (ViewBag.IsContextual == true)
+                    {
+                        <input type="hidden" value="@ViewBag.GameId" name="GameId" />
+                    }
+                    else
+                    {
+                        <label asp-for="GameId" class="form-label text-info"></label>
+                        <select asp-for="GameId" class="form-select" asp-items="ViewBag.GameId"></select>
+                    }
+                </div>
+                <div class="mb-3">
+                    <label asp-for="UserId" class="form-label text-info"></label>
+                    <select asp-for="UserId" class="form-select" asp-items="ViewBag.UserId"></select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Raiting" class="form-label text-info"></label>
+                    <input asp-for="Raiting" type="number" min="1" max="10" class="form-control" />
+                    <span asp-validation-for="Raiting" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="CreatedDate" class="form-label text-info"></label>
+                    <input asp-for="CreatedDate" type="date" class="form-control" />
+                    <span asp-validation-for="CreatedDate" class="text-danger"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Content" class="form-label text-info"></label>
+                    <textarea asp-for="Content" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+                <div class="mt-2">
+                    <input type="submit" value="Створити" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Назад до списку</a>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Назад до списку</a>
 </div>
 
 @section Scripts {

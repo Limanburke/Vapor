@@ -4,29 +4,32 @@
     ViewData["Title"] = "Деталі";
 }
 
-<h1>Деталі</h1>
-
-<div>
-    <h4>Жанр</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dd class="col-sm-2">
-            <ul>
-                @foreach (var game in Model.Games)
-                {
-                    <li>@game.Title</li>
-                }
-            </ul>
+<h1 class="text-info">Деталі</h1>
+<div class="card border-info bg-transparent p-4 mb-4 mt-3">
+    <h4 class="text-primary">Жанр</h4>
+    <hr class="border-primary" />
+    <dl class="row mb-0">
+        <dt class="col-sm-3 text-info"> @Html.DisplayNameFor(model => model.Name) </dt>
+        <dd class="col-sm-9 fs-5"> @Html.DisplayFor(model => model.Name) </dd>
+        <dt class="col-sm-3 text-info mt-3"> Ігри в цьому жанрі: </dt>
+        <dd class="col-sm-9 mt-3">
+            @if (Model.Games != null && Model.Games.Any())
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var game in Model.Games)
+                    {
+                        <li class="list-group-item bg-transparent text-light border-secondary px-0"> @game.Title </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span class="text-muted">Ігор цього жанру поки немає</span>
+            }
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Назад до списку</a>
+    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">Редагувати</a>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Назад до списку</a>
 </div>

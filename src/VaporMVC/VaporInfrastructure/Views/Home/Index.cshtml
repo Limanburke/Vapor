@@ -1,43 +1,92 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<VaporDomain.Model.Game>
+
+@{
+    ViewData["Title"] = "Головна сторінка";
 }
 
-@*<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>*@
-
-<div class="text-center">
-    <h1 class="display-4">Vapor</h1>
-    <p>Оберіть розділ:</p>
+<div class="text-center mb-4">
+    <h1 class="display-4 text-info fw-bold" style="text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);">Vapor</h1>
 </div>
-<ul>
-    <li>
-        <a asp-controller="Publishers" asp-action="Index">Управління видавниками</a>
-    </li>
-   <li>
-        <a asp-controller="Games" asp-action="Index">Управління іграми</a>
-   </li>
-    <li>
-        <a asp-controller="Genres" asp-action="Index">Управління жанрами</a>
-    </li>
-    <li>
-        <a asp-controller="Users" asp-action="Index">Управління користувачами</a>
-    </li>
-    <li>
-        <a asp-controller="Reviews" asp-action="Index">Управління відгуками</a>
-    </li>
-    <li>
-        <a asp-controller="PriceHistories" asp-action="Index">Управління історією цін</a>
-    </li>
-    <li>
-        <a asp-controller="Orders" asp-action="Index">Управління замовленнями</a>
-    </li>
-    <li>
-        <a asp-controller="OrderItems" asp-action="Index">Управління позиціями в замовлені</a>
-    </li>
-    <li>
-        <a asp-controller="Status" asp-action="Index">Управління статусами</a>
-    </li>
-</ul>
-
+<details class="mb-5">
+    <summary class="fs-4 text-primary fw-bold mb-3" style="cursor: pointer; list-style: none;">
+        <span class="badge bg-primary rounded-pill me-2">~</span> Панель Адміністратора
+    </summary>
+    <div class="card bg-transparent border-primary p-4">
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="Publishers" asp-action="Index" class="btn btn-outline-info w-100">Видавники</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="Games" asp-action="Index" class="btn btn-outline-info w-100">Ігри</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="Genres" asp-action="Index" class="btn btn-outline-info w-100">Жанри</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="Users" asp-action="Index" class="btn btn-outline-info w-100">Користувачі</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="Reviews" asp-action="Index" class="btn btn-outline-info w-100">Відгуки</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="PriceHistories" asp-action="Index" class="btn btn-outline-info w-100">Історія цін</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-info w-100">Замовлення</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="OrderItems" asp-action="Index" class="btn btn-outline-info w-100">Позиції замовлень</a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a asp-controller="Status" asp-action="Index" class="btn btn-outline-info w-100">Статуси</a>
+            </div>
+        </div>
+    </div>
+</details>
+<form method="get" asp-action="Index" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="searchString" class="form-control" placeholder="Пошук за назвою гри...">
+        <select name="genreId" class="form-select" style="max-width: 200px;">
+            <option value="">Усі жанри</option> 
+            @foreach(var genre in ViewBag.Genres)
+            {
+                <option value="@genre.Id">@genre.Name</option>
+            }
+        </select>
+        <select name="publisherId" class="form-select" style="max-width: 200px;">
+            <option value="">Усі видавці</option>
+            @foreach (var publisher in ViewBag.Publishers)
+            {
+                <option value="@publisher.Id">@publisher.Name</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-primary">Шукати</button>
+    </div>
+</form>
+<h2 class="mt-5 mb-3">Вітрина ігор</h2>
+<div class="row">
+    @foreach (var game in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border border-info">
+                @*<div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <span> Постер: @game.Title</span>
+                </div>*@
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">@game.Title</h5>
+                    <p class="card-subtitle fs-5">@game.Publisher.Name</p>
+                    <p class="card-text text-success fw-bold fs-5">@game.Price $</p>
+                    <div class="mb-2 text-truncate">
+                        @foreach (var genre in game.Genres)
+                        {
+                            <span class="badge bg-secondary rounded-pill fw-normal">@genre.Name</span>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0 pb-3">
+                    <a asp-controller="Games" asp-action="Details" asp-route-id="@game.Id" class="btn btn-primary w-100"> Детальніше </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

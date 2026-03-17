@@ -35,9 +35,10 @@ namespace VaporInfrastructure.Controllers
             }
 
             var orderItem = await _context.OrderItems
-                .Include(o => o.Game)
-                .Include(o => o.Order)
-                .FirstOrDefaultAsync(m => m.GameId == id);
+                                  .Include(o => o.Game)
+                                  .Include(o => o.Order)
+                                  .FirstOrDefaultAsync(m => m.GameId == id);
+
             if (orderItem == null)
             {
                 return NotFound();
@@ -67,8 +68,10 @@ namespace VaporInfrastructure.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", orderItem.GameId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderItem.OrderId);
+
             return View(orderItem);
         }
 
@@ -81,12 +84,15 @@ namespace VaporInfrastructure.Controllers
             }
 
             var orderItem = await _context.OrderItems.FindAsync(id);
+
             if (orderItem == null)
             {
                 return NotFound();
             }
+
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", orderItem.GameId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderItem.OrderId);
+
             return View(orderItem);
         }
 
@@ -122,8 +128,10 @@ namespace VaporInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", orderItem.GameId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderItem.OrderId);
+
             return View(orderItem);
         }
 
@@ -136,9 +144,10 @@ namespace VaporInfrastructure.Controllers
             }
 
             var orderItem = await _context.OrderItems
-                .Include(o => o.Game)
-                .Include(o => o.Order)
-                .FirstOrDefaultAsync(m => m.GameId == id);
+                                  .Include(o => o.Game)
+                                  .Include(o => o.Order)
+                                  .FirstOrDefaultAsync(m => m.GameId == id);
+
             if (orderItem == null)
             {
                 return NotFound();
@@ -153,6 +162,7 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var orderItem = await _context.OrderItems.FindAsync(id);
+
             if (orderItem != null)
             {
                 _context.OrderItems.Remove(orderItem);

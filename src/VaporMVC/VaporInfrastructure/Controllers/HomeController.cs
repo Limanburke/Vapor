@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using VaporInfrastructure.Models;
 
@@ -6,12 +7,45 @@ namespace VaporInfrastructure.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly VaporContext _context;
+
+        public HomeController(VaporContext context)
         {
-            return View();
+            _context = context;
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Index(string? searchString, int? genreId, int? publisherId)
+        {
+
+            var gamesQuery = _context.Games
+                            .Include(g => g.Publisher)
+                            .Include(g => g.Genres)
+                            .Where(g => g.IsAvailable == true)
+                            .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                gamesQuery = gamesQuery.Where(g => g.Title.Contains(searchString));
+            }
+
+            if (genreId != null)
+            {
+                gamesQuery = gamesQuery.Where(g => g.Genres.Any(x => x.Id == genreId));
+            }
+
+            if (publisherId != null)
+            {
+                gamesQuery = gamesQuery.Where(g => g.PublisherId == publisherId);
+            }
+
+            ViewBag.Genres = _context.Genres.ToList();
+            ViewBag.Publishers = _context.Publishers.ToList();
+
+
+            return View(await gamesQuery.ToListAsync());
+        }
+
+        public IActionResult About()
         {
             return View();
         }

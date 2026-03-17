@@ -1,72 +1,60 @@
 ﻿@model VaporDomain.Model.Game
 
 @{
-    ViewData["Title"] = "Видалити";
+    ViewData["Title"] = "Видалити гру";
 }
 
-<h1>Видалити</h1>
+<h1 class="text-danger">Видалити</h1>
 
 @if (ViewBag.ErrorMessage != null)
 {
-    <div class="alert alert-danger" role="alert">
+    <div class="alert alert-danger shadow-sm mt-3" role="alert">
+        <strong>Помилка видалення!</strong>
         @ViewBag.ErrorMessage
     </div>
 }
 
-<h3>Ви впевненні, що хочете видалити @ViewBag.GameTitle?</h3>
-<div>
-    <h4>Гра</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsAvailable)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsAvailable)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReleasedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReleasedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Publisher)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Publisher.Name)
-        </dd>
-        <dd class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Genres)
-        </dd>
-        <dd class="col-sm-10">
-            @foreach (var genre in Model.Genres)
+<h3 class="text-warning mb-4 mt-3">Ви впевнені, що хочете видалити гру "@ViewBag.GameTitle"?</h3>
+<div class="card border-danger bg-transparent p-4 mb-4">
+    <h4 class="text-info">Дані гри</h4>
+    <hr class="border-info" />
+    <dl class="row mb-0">
+        <dt class="col-sm-3 text-primary">@Html.DisplayNameFor(model => model.Title)</dt>
+        <dd class="col-sm-9 fs-5 text-light fw-bold">@Html.DisplayFor(model => model.Title)</dd>
+        <dt class="col-sm-3 text-primary mt-2">@Html.DisplayNameFor(model => model.Publisher)</dt>
+        <dd class="col-sm-9 mt-2">@Html.DisplayFor(model => model.Publisher.Name)</dd>
+        <dt class="col-sm-3 text-primary mt-2">@Html.DisplayNameFor(model => model.Price)</dt>
+        <dd class="col-sm-9 mt-2 text-success fw-bold fs-5">@Html.DisplayFor(model => model.Price)</dd>
+        <dt class="col-sm-3 text-primary mt-2">Статус</dt>
+        <dd class="col-sm-9 mt-2">
+            @if (Model.IsAvailable)
             {
-                <span>@genre.Name</span><br />
+                <span class="badge bg-success">У продажу</span>
             }
+            else
+            {
+
+                <span class="badge bg-danger">Приховано</span>
+            }
+        </dd>
+        <dt class="col-sm-3 text-primary mt-2">@Html.DisplayNameFor(model => model.Genres)</dt>
+        <dd class="col-sm-9 mt-2">
+            @if (Model.Genres.Any())
+            {
+                @foreach (var genre in Model.Genres)
+                {
+                    <span class="badge bg-secondary rounded-pill me-1">@genre.Name</span>
+                }
+            }
+            else
+            {
+                <span class="text-muted">Немає</span>
+            }
+        </dd>
     </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Видалити" class="btn btn-danger" /> |
-        <a asp-action="Index">Назад до списку</a>
-    </form>
 </div>
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Видалити" class="btn btn-danger" />
+    <a asp-action="Index" class="btn btn-secondary ms-2">Назад до списку</a>
+</form>

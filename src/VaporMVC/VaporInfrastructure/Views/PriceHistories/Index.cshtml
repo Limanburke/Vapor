@@ -4,50 +4,44 @@
     ViewData["Title"] = "Історія цін";
 }
 
-<h1>Історія цін</h1>
-
-@*<p>
-    <a asp-action="Create">Create New</a>
-</p>*@
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.OldPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NewPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChangedData)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Game)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.OldPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NewPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ChangedData)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Game.Title)
-            </td>
-            <td>
-                @*<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |*@
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<h1 class="text-info">Історія змін цін</h1>
+<div class="alert alert-secondary bg-transparent border-secondary mt-3 mb-4" role="alert">
+    <strong>Системний журнал:</strong> 
+    Ця таблиця відображає автоматично згенеровану історію зміни цін на ігри. Створення та редагування записів вимкнено.
+</div>
+<div class="card bg-transparent border-primary p-3">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr class="table-primary">
+                <th>@Html.DisplayNameFor(model => model.Game)</th>
+                <th>@Html.DisplayNameFor(model => model.OldPrice)</th>
+                <th>@Html.DisplayNameFor(model => model.NewPrice)</th>
+                <th>@Html.DisplayNameFor(model => model.ChangedData)</th>
+                <th class="text-end">Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="align-middle fw-bold">
+                        <a asp-controller="Games" asp-action="Details" asp-route-id="@item.Game.Id" class="text-decoration-none text-light"> @Html.DisplayFor(modelItem => item.Game.Title) </a>
+                    </td>
+                    <td class="align-middle text-muted text-decoration-line-through"> @Html.DisplayFor(modelItem => item.OldPrice) </td>
+                    <td class="align-middle fw-bold fs-5 @(item.NewPrice < item.OldPrice ? "text-success" : "text-danger")">
+                        @Html.DisplayFor(modelItem => item.NewPrice)
+                        @if (item.NewPrice < item.OldPrice)
+                        {
+                            <span class="badge bg-success ms-1">↓</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger ms-1">↑</span>
+                        }
+                    </td>
+                    <td class="align-middle"> @Html.DisplayFor(modelItem => item.ChangedData) </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

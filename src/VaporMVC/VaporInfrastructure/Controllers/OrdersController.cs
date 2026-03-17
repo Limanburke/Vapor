@@ -35,11 +35,11 @@ namespace VaporInfrastructure.Controllers
             }
 
             var order = await _context.Orders
-                .Include(o => o.Status)
-                .Include(o => o.User)
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Game)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                              .Include(o => o.Status)
+                              .Include(o => o.User)
+                              .Include(o => o.OrderItems)
+                                .ThenInclude(oi => oi.Game)
+                              .FirstOrDefaultAsync(m => m.Id == id);
 
             if (order == null)
             {
@@ -47,6 +47,7 @@ namespace VaporInfrastructure.Controllers
             }
 
             ViewBag.totalPrice = order.OrderItems?.Sum(o => o.Price) ?? 0;
+
             return View(order);
         }
 
@@ -57,8 +58,16 @@ namespace VaporInfrastructure.Controllers
             int currentUserId = 1; // placeholder
 
             var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
-            if (game == null) return NotFound();
-            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
+
+            if (game == null) 
+            { 
+                return NotFound();
+            }
+
+            var order = await _context.Orders
+                              .Include(o => o.OrderItems)
+                              .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
+
             if (order == null)
             {
 
@@ -83,6 +92,7 @@ namespace VaporInfrastructure.Controllers
                     OrderId = order.Id,
                     Price = game.Price,
                 };
+
                 _context.OrderItems.Add(orderItem);
                 await _context.SaveChangesAsync();
             }
@@ -94,12 +104,15 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> Cart()
         {
             int currentUserId = 1; // placeholder
+
             var cart = await _context.Orders
-                .Include(o => o.OrderItems)
-                .ThenInclude(g => g.Game)
-                .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
+                             .Include(o => o.OrderItems)
+                             .ThenInclude(g => g.Game)
+                             .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
 
             ViewBag.totalPrice = cart?.OrderItems.Sum(o => o.Price) ?? 0;
+            ViewBag.hasOrderItems = !(cart?.OrderItems.Any() ?? false);
+            
 
             return View(cart);
         }
@@ -109,16 +122,20 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteFromCart(int? gameId)
         {
             int currentUserId = 1; // placeholder
+
             var cart = await _context.Orders
-                .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
+                             .Include(o => o.OrderItems)
+                             .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
+
             var itemToRemove = cart?.OrderItems.FirstOrDefault(g => g.GameId == gameId);
+
             if (itemToRemove != null)
             {
                 cart.OrderItems.Remove(itemToRemove);
                 _context.OrderItems.Remove(itemToRemove);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Cart));
         }
 
@@ -126,17 +143,35 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(int? orderId)
         {
-            if(orderId == null)
+            if (orderId == null)
             {
                 return NotFound();
             }
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
-            order.StatusId = 2; //payed
-            //_context.Orders.Update(order);
-            await _context.SaveChangesAsync();
+
+            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order != null && order.OrderItems.Any())
+            {
+                order.StatusId = 2;
+                _context.Orders.Update(order);
+                await _context.SaveChangesAsync();
+            }
 
             return RedirectToAction(nameof(Cart));
         }
+
+        public async Task<IActionResult> Library()
+        {
+            int currentUserId = 1; // placeholder
+
+            var library = await _context.Orders
+                                .Include(o => o.OrderItems)
+                                .ThenInclude(g => g.Game)
+                                .Where(o => o.UserId == currentUserId && o.StatusId == 2).ToArrayAsync();
+
+            return View(library);
+        }
+
 
         // GET: Orders/Create
         //public IActionResult Create()
@@ -231,11 +266,11 @@ namespace VaporInfrastructure.Controllers
             }
 
             var order = await _context.Orders
-                .Include(o => o.Status)
-                .Include(o => o.User)
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Game)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                              .Include(o => o.Status)
+                              .Include(o => o.User)
+                              .Include(o => o.OrderItems)
+                              .ThenInclude(oi => oi.Game)
+                              .FirstOrDefaultAsync(m => m.Id == id);
 
 
             if (order == null)
@@ -244,6 +279,7 @@ namespace VaporInfrastructure.Controllers
             }
 
             ViewBag.totalPrice = order.OrderItems?.Sum(o => o.Price) ?? 0;
+
             return View(order);
         }
 
@@ -254,6 +290,7 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(m => m.Id == id);
+
             if (order != null)
             {
                 foreach (var item in order.OrderItems)

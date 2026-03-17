@@ -27,134 +27,144 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: PriceHistories/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var priceHistory = await _context.PriceHistories
-                .Include(p => p.Game)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (priceHistory == null)
-            {
-                return NotFound();
-            }
+        //    var priceHistory = await _context.PriceHistories
+        //                             .Include(p => p.Game)
+        //                             .FirstOrDefaultAsync(m => m.Id == id);
 
-            return View(priceHistory);
-        }
+        //    if (priceHistory == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(priceHistory);
+        //}
 
         // GET: PriceHistories/Create
-        public IActionResult Create()
-        {
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title");
-            return View();
-        }
+        //public IActionResult Create()
+        //{
+        //    ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title");
+        //    return View();
+        //}
 
         // POST: PriceHistories/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GameId,OldPrice,NewPrice,ChangedData,Id")] PriceHistory priceHistory)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(priceHistory);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", priceHistory.GameId);
-            return View(priceHistory);
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("GameId,OldPrice,NewPrice,ChangedData,Id")] PriceHistory priceHistory)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(priceHistory);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", priceHistory.GameId);
+
+        //    return View(priceHistory);
+        //}
 
         // GET: PriceHistories/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Edit(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var priceHistory = await _context.PriceHistories.FindAsync(id);
-            if (priceHistory == null)
-            {
-                return NotFound();
-            }
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", priceHistory.GameId);
-            return View(priceHistory);
-        }
+        //    var priceHistory = await _context.PriceHistories.FindAsync(id);
+
+        //    if (priceHistory == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", priceHistory.GameId);
+
+        //    return View(priceHistory);
+        //}
 
         // POST: PriceHistories/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GameId,OldPrice,NewPrice,ChangedData,Id")] PriceHistory priceHistory)
-        {
-            if (id != priceHistory.Id)
-            {
-                return NotFound();
-            }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, [Bind("GameId,OldPrice,NewPrice,ChangedData,Id")] PriceHistory priceHistory)
+        //{
+        //    if (id != priceHistory.Id)
+        //    {
+        //        return NotFound();
+        //    }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(priceHistory);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PriceHistoryExists(priceHistory.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", priceHistory.GameId);
-            return View(priceHistory);
-        }
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            _context.Update(priceHistory);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            if (!PriceHistoryExists(priceHistory.Id))
+        //            {
+        //                return NotFound();
+        //            }
+        //            else
+        //            {
+        //                throw;
+        //            }
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", priceHistory.GameId);
+
+        //    return View(priceHistory);
+        //}
 
         // GET: PriceHistories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var priceHistory = await _context.PriceHistories
-                .Include(p => p.Game)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (priceHistory == null)
-            {
-                return NotFound();
-            }
+        //    var priceHistory = await _context.PriceHistories
+        //                             .Include(p => p.Game)
+        //                             .FirstOrDefaultAsync(m => m.Id == id);
 
-            return View(priceHistory);
-        }
+        //    if (priceHistory == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(priceHistory);
+        //}
 
         // POST: PriceHistories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var priceHistory = await _context.PriceHistories.FindAsync(id);
-            if (priceHistory != null)
-            {
-                _context.PriceHistories.Remove(priceHistory);
-            }
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var priceHistory = await _context.PriceHistories.FindAsync(id);
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        //    if (priceHistory != null)
+        //    {
+        //        _context.PriceHistories.Remove(priceHistory);
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         private bool PriceHistoryExists(int id)
         {

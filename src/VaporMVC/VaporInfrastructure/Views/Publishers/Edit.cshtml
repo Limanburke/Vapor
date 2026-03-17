@@ -1,34 +1,34 @@
 ﻿@model VaporDomain.Model.Publisher
 
 @{
-    ViewData["Title"] = "Редагувати";
+    ViewData["Title"] = "Редагувати видавця";
 }
 
-<h1>Редагувати</h1>
-
-<h4>Видавець</h4>
-<hr />
+<h1 class="text-info">Редагувати</h1>
+<h4 class="text-primary mt-3">Видавець</h4>
+<hr class="border-primary" />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <input type="submit" value="Зберегти" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="col-md-6">
+        <div class="card bg-transparent border-info p-4 mb-4 shadow-sm">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger fw-bold mb-3"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label text-info"></label>
+                    <input asp-for="Name" class="form-control" placeholder="Наприклад: Electronic Arts" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mt-4">
+                    <input type="submit" value="Зберегти зміни" class="btn btn-warning fw-bold text-dark" />
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Назад до списку</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Назад до списку</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

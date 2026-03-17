@@ -33,8 +33,8 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+
             if (user == null)
             {
                 return NotFound();
@@ -56,6 +56,17 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Username,Email,Id")] User user)
         {
+
+            if (_context.Users.Any(u => u.Username.ToLower() == user.Username.ToLower()))
+            {
+                ModelState.AddModelError("Username", "Користувач з таким ніком вже існує!");
+            }
+
+            //if (_context.Users.Any(u => u.Email.ToLower() == user.Email.ToLower()))
+            //{
+            //    ModelState.AddModelError("Email", "Цей Email вже зареєстровано!");
+            //}
+
             if (ModelState.IsValid)
             {
                 _context.Add(user);
@@ -74,10 +85,12 @@ namespace VaporInfrastructure.Controllers
             }
 
             var user = await _context.Users.FindAsync(id);
+
             if (user == null)
             {
                 return NotFound();
             }
+
             return View(user);
         }
 
@@ -92,6 +105,16 @@ namespace VaporInfrastructure.Controllers
             {
                 return NotFound();
             }
+
+            if (_context.Users.Any(u => u.Username.ToLower() == user.Username.ToLower() && u.Id != user.Id))
+            {
+                ModelState.AddModelError("Username", "Інший користувач з таким ніком вже існує!");
+            }
+
+            //if (_context.Users.Any(u => u.Email.ToLower() == user.Email.ToLower() && u.Id != user.Id))
+            //{
+            //    ModelState.AddModelError("Email", "Цей Email вже використовується іншим користувачем!");
+            //}
 
             if (ModelState.IsValid)
             {
@@ -124,8 +147,8 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+
             if (user == null)
             {
                 return NotFound();
@@ -140,6 +163,7 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var user = await _context.Users.FindAsync(id);
+
             if (user != null)
             {
                 _context.Users.Remove(user);

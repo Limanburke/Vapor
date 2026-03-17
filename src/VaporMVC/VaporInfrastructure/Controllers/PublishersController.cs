@@ -33,14 +33,13 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var publisher = await _context.Publishers
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var publisher = await _context.Publishers.FirstOrDefaultAsync(m => m.Id == id);
+
             if (publisher == null)
             {
                 return NotFound();
             }
 
-            // return View(publisher);
             return RedirectToAction("Index", "Games", new { id = publisher.Id, name = publisher.Name});
         }
 
@@ -57,6 +56,12 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Id")] Publisher publisher)
         {
+
+            if (_context.Publishers.Any(p => p.Name.ToLower() == publisher.Name.ToLower()))
+            {
+                ModelState.AddModelError("Name", "Видавець з такою назвою вже існує!");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(publisher);
@@ -75,6 +80,7 @@ namespace VaporInfrastructure.Controllers
             }
 
             var publisher = await _context.Publishers.FindAsync(id);
+
             if (publisher == null)
             {
                 return NotFound();
@@ -92,6 +98,11 @@ namespace VaporInfrastructure.Controllers
             if (id != publisher.Id)
             {
                 return NotFound();
+            }
+
+            if (_context.Publishers.Any(p => p.Name.ToLower() == publisher.Name.ToLower() && p.Id != publisher.Id))
+            {
+                ModelState.AddModelError("Name", "Інший видавець з такою назвою вже існує!");
             }
 
             if (ModelState.IsValid)
@@ -125,9 +136,9 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var publisher = await _context.Publishers
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var publisher = await _context.Publishers.FirstOrDefaultAsync(m => m.Id == id);
             ViewBag.PublisherName = publisher?.Name;
+
             if (publisher == null)
             {
                 return NotFound();
@@ -142,9 +153,9 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var publisher = await _context.Publishers.FindAsync(id);
+
             if (publisher != null)
             {
-                //_context.Publishers.Remove(publisher);
                 try
                 {
                     _context.Publishers.Remove(publisher);

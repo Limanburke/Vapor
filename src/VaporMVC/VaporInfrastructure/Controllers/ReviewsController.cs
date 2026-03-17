@@ -35,9 +35,10 @@ namespace VaporInfrastructure.Controllers
             }
 
             var review = await _context.Reviews
-                .Include(r => r.Game)
-                .Include(r => r.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                               .Include(r => r.Game)
+                               .Include(r => r.User)
+                               .FirstOrDefaultAsync(m => m.Id == id);
+
             if (review == null)
             {
                 return NotFound();
@@ -52,6 +53,7 @@ namespace VaporInfrastructure.Controllers
             if (gameId != null)
             {
                 var review = _context.Games.FirstOrDefault(r => r.Id == gameId);
+
                 ViewBag.GameId = review?.Id;
                 ViewBag.GameTitle = review?.Title;
                 ViewBag.IsContextual = true;
@@ -61,7 +63,9 @@ namespace VaporInfrastructure.Controllers
                 ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title");
                 ViewBag.IsContextual = false;
             }
+
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email");
+
             return View();
         }
 
@@ -75,6 +79,7 @@ namespace VaporInfrastructure.Controllers
         {
             bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
             bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
+
             if (!(gameExists && userExists))
             {
                 return NotFound();
@@ -83,15 +88,23 @@ namespace VaporInfrastructure.Controllers
             ModelState.Remove("Game");
             ModelState.Remove("User");
 
+            bool reviewExists = _context.Reviews.Any(r => r.GameId == review.GameId && r.UserId == review.UserId);
+
+            if (reviewExists)
+            {
+                ModelState.AddModelError("", "Ви вже залишили відгук до цієї гри.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(review);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", "Games", new { id = review.GameId });
-                //return RedirectToAction(nameof(Index));
             }
+
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
+
             return View(review);
         }
 
@@ -105,12 +118,15 @@ namespace VaporInfrastructure.Controllers
             }
 
             var review = await _context.Reviews.FindAsync(id);
+
             if (review == null)
             {
                 return NotFound();
             }
+
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
+
             return View(review);
         }
 
@@ -124,6 +140,7 @@ namespace VaporInfrastructure.Controllers
         {
             bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
             bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
+
             if (!(gameExists && userExists))
             {
                 return NotFound();
@@ -131,6 +148,16 @@ namespace VaporInfrastructure.Controllers
 
             ModelState.Remove("Game");
             ModelState.Remove("User");
+
+            bool duplicateReviewExists = _context.Reviews.Any(r =>
+                                         r.GameId == review.GameId &&
+                                         r.UserId == review.UserId &&
+                                         r.Id != review.Id);
+
+            if (duplicateReviewExists)
+            {
+                ModelState.AddModelError("", "У вас вже є відгук до цієї гри.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -152,8 +179,10 @@ namespace VaporInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
+
             return View(review);
         }
 
@@ -166,9 +195,10 @@ namespace VaporInfrastructure.Controllers
             }
 
             var review = await _context.Reviews
-                .Include(r => r.Game)
-                .Include(r => r.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                               .Include(r => r.Game)
+                               .Include(r => r.User)
+                               .FirstOrDefaultAsync(m => m.Id == id);
+
             if (review == null)
             {
                 return NotFound();
@@ -183,6 +213,7 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var review = await _context.Reviews.FindAsync(id);
+
             if (review != null)
             {
                 _context.Reviews.Remove(review);

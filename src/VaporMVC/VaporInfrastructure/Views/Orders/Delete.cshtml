@@ -5,7 +5,6 @@
 }
 
 <h1>Видалити</h1>
-
 <h3>Ви впевненні, що хочете видалити це?</h3>
 <div>
     <h4>Order</h4>
@@ -40,14 +39,13 @@
                         @item.Game.Title
                     </div>
                     <div class="col-4">
-                        @item.Price $
+                        @item.Price$
                     </div>
                 </div>
             }
-            <label>Загальна ціна: @ViewBag.totalPrice $</label>
+            <label>Загальна ціна: @ViewBag.totalPrice$</label>
         </dd>
     </dl>
-    
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
         <input type="submit" value="Видалити" class="btn btn-danger" /> |

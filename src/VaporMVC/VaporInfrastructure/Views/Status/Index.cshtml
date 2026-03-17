@@ -4,32 +4,40 @@
     ViewData["Title"] = "Статуси";
 }
 
-@*<h1>Статуси</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>*@
-<table class="table">
+<h1 class="text-info">Статуси замовлень</h1>
+<div class="alert alert-secondary bg-transparent border-secondary mt-3 mb-4" role="alert">
+      Створення, редагування та видалення статусів вимкнено, оскільки вони є системними і використовуються для обробки кошика та покупок.
+</div>
+<table class="table table-hover">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
+        <tr class="table-primary">
+            <th> @Html.DisplayNameFor(model => model.Name) </th>
+            <th class="text-end">Дії</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @*<a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |*@
-                <a asp-action="Details" asp-route-id="@item.Id">Деталі</a>@* |
-                <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>*@
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="align-middle fw-bold fs-5">
+                    @if (item.Id == 1)
+                    {
+                        <span class="text-warning">@item.Name</span>
+                    }
+                    else if (item.Id == 2)
+                    {
+                        <span class="text-success">@item.Name</span>
+                    }
+                    else if (item.Id == 3)
+                    {
+                        <span class="text-danger">@item.Name</span>
+                    }
+                    else
+                    {
+                        @item.Name
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

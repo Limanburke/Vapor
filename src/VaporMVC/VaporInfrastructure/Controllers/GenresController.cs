@@ -35,8 +35,9 @@ namespace VaporInfrastructure.Controllers
             }
 
             var genre = await _context.Genres
-                .Include(g => g.Games)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                              .Include(g => g.Games)
+                              .FirstOrDefaultAsync(m => m.Id == id);
+
             if (genre == null)
             {
                 return NotFound();
@@ -58,6 +59,11 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Id")] Genre genre)
         {
+            if (_context.Genres.Any(g => g.Name.ToLower() == genre.Name.ToLower()))
+            {
+                ModelState.AddModelError("Name", "Жанр з такою назвою вже існує!");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(genre);
@@ -76,10 +82,12 @@ namespace VaporInfrastructure.Controllers
             }
 
             var genre = await _context.Genres.FindAsync(id);
+
             if (genre == null)
             {
                 return NotFound();
             }
+
             return View(genre);
         }
 
@@ -93,6 +101,13 @@ namespace VaporInfrastructure.Controllers
             if (id != genre.Id)
             {
                 return NotFound();
+            }
+
+            bool isDuplicate = _context.Genres.Any(g => g.Name.ToLower() == genre.Name.ToLower() && g.Id != genre.Id);
+
+            if (isDuplicate)
+            {
+                ModelState.AddModelError("Name", "Інший жанр з такою назвою вже існує!");
             }
 
             if (ModelState.IsValid)
@@ -126,13 +141,14 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres
-                .FirstOrDefaultAsync(m => m.Id == id);
-            ViewBag.GenreName = genre?.Name;
+            var genre = await _context.Genres.FirstOrDefaultAsync(m => m.Id == id);
+
             if (genre == null)
             {
                 return NotFound();
             }
+
+            ViewBag.GenreName = genre?.Name;
 
             return View(genre);
         }
@@ -145,7 +161,7 @@ namespace VaporInfrastructure.Controllers
             var genre = await _context.Genres
                                 .Include(g => g.Games)
                                 .FirstOrDefaultAsync(m => m.Id == id);
-            //var genre = await _context.Genres.FindAsync(id);
+
             if (genre != null)
             {
                 ViewBag.GenreName = genre?.Name;

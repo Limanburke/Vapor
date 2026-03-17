@@ -25,13 +25,23 @@ namespace VaporInfrastructure.Controllers
         {
             if (id == null)
             {
-                var allGames = _context.Games.Include(g => g.Publisher).Include(g => g.Genres).Include(g => g.Reviews);
+                var allGames = _context.Games
+                               .Include(g => g.Publisher)
+                               .Include(g => g.Genres)
+                               .Include(g => g.Reviews);
+
                 return View(await allGames.ToListAsync());
             }
 
             ViewBag.PublisherId = id;
             ViewBag.PublisherName = name;
-            var gamesByPublisher = _context.Games.Where(g => g.PublisherId == id).Include(g => g.Publisher).Include(g => g.Genres).Include(g => g.Reviews);
+
+            var gamesByPublisher = _context.Games
+                                   .Where(g => g.PublisherId == id)
+                                   .Include(g => g.Publisher)
+                                   .Include(g => g.Genres)
+                                   .Include(g => g.Reviews);
+
             return View(await gamesByPublisher.ToListAsync());
         }
 
@@ -43,17 +53,26 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
+            int currentUserId = 1; //placeholder
+
             var game = await _context.Games
                 .Include(g => g.Publisher)
                 .Include(g => g.Genres)
                 .Include(g => g.PriceHistories)
+                .Include(g => g.OrderItems)
                 .Include(g => g.Reviews)
                     .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (game == null)
             {
                 return NotFound();
             }
+
+            ViewBag.hasOrderItems = await _context.OrderItems.AnyAsync(
+                                           o => o.GameId == id &&
+                                           o.Order.UserId == currentUserId &&
+                                           o.Order.StatusId != 3);
 
             return View(game);
         }
@@ -64,6 +83,7 @@ namespace VaporInfrastructure.Controllers
             if (publisherId != null)
             {
                 var publisher = _context.Publishers.FirstOrDefault(p => p.Id == publisherId);
+
                 ViewBag.PublisherName = publisher?.Name;
                 ViewBag.PublisherId = publisherId;
                 ViewBag.IsContextual = true;
@@ -73,6 +93,7 @@ namespace VaporInfrastructure.Controllers
                 ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name");
                 ViewBag.IsContextual = false;
             }
+
             ViewBag.Genres = new SelectList(_context.Genres, "Id", "Name");
             return View();
         }
@@ -85,7 +106,12 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> Create([Bind("PublisherId,Title,IsAvailable,Description,Price,ReleasedDate,Id")] Game game, int[] selectedGenres)
         {
             var publisher = _context.Publishers.FirstOrDefault(p => p.Id == game.PublisherId);
-            if (publisher != null) game.Publisher = publisher;
+
+            if (publisher != null)
+            {
+                game.Publisher = publisher;
+            }
+                
             if (selectedGenres != null && selectedGenres.Length > 0)
             {
                 var genres = _context.Genres.Where(g => selectedGenres.Contains(g.Id)).ToList();
@@ -95,14 +121,21 @@ namespace VaporInfrastructure.Controllers
             ModelState.Clear();
             TryValidateModel(game);
 
+            if (_context.Games.Any(g => g.Title.ToLower() == game.Title.ToLower()))
+            {
+                ModelState.AddModelError("Title", "Гра з такою назвою вже існує!");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(game);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index", "Games");
             }
+
             ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", game.PublisherId);
             ViewBag.Genres = new SelectList(_context.Genres, "Id", "Name");
+
             return View(game);
         }
 
@@ -114,17 +147,20 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            //var game = await _context.Games.FindAsync(id);
             var game = await _context.Games
                             .Include(g => g.Genres)
                             .FirstOrDefaultAsync(m => m.Id == id);
+
             if (game == null)
             {
                 return NotFound();
             }
+
             var selectedGenresIds = game.Genres.Select(g => g.Id).ToArray();
+
             ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", game.PublisherId);
             ViewBag.Genres = new MultiSelectList(_context.Genres, "Id", "Name", selectedGenresIds);
+
             return View(game);
         }
 
@@ -141,16 +177,28 @@ namespace VaporInfrastructure.Controllers
             }
 
             var gameToUpdate = await _context.Games
-                                .Include(g => g.Genres)
-                                .FirstOrDefaultAsync(g => g.Id == id);
+                                     .Include(g => g.Genres)
+                                     .FirstOrDefaultAsync(g => g.Id == id);
 
-            if (gameToUpdate == null) return NotFound();
+            if (gameToUpdate == null)
+            {
+                return NotFound();
+            }
 
             var publisher = _context.Publishers.FirstOrDefault(p => p.Id == game.PublisherId);
-            if (publisher != null) game.Publisher = publisher;
+
+            if (publisher != null) 
+            { 
+                game.Publisher = publisher;
+            }
 
             ModelState.Clear();
             TryValidateModel(game);
+
+            if (_context.Games.Any(g => g.Title.ToLower() == game.Title.ToLower() && g.Id != game.Id))
+            {
+                ModelState.AddModelError("Title", "Інша гра з такою назвою вже існує!");
+            }
 
             if (ModelState.IsValid)
             {
@@ -201,8 +249,10 @@ namespace VaporInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", game.PublisherId);
             ViewBag.Genres = new MultiSelectList(_context.Genres, "Id", "Name", Genres);
+
             return View(game);
         }
 
@@ -215,14 +265,16 @@ namespace VaporInfrastructure.Controllers
             }
 
             var game = await _context.Games
-                .Include(g => g.Publisher)
-                .Include(g => g.Genres)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            ViewBag.GameTitle = game?.Title;
+                             .Include(g => g.Publisher)
+                             .Include(g => g.Genres)
+                             .FirstOrDefaultAsync(m => m.Id == id);
+
             if (game == null)
             {
                 return NotFound();
             }
+
+            ViewBag.GameTitle = game?.Title;
 
             return View(game);
         }
@@ -233,8 +285,8 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var game = await _context.Games
-                        .Include(g => g.Genres)
-                        .FirstOrDefaultAsync(m => m.Id == id);
+                             .Include(g => g.Genres)
+                             .FirstOrDefaultAsync(m => m.Id == id);
 
             if (game != null)
             {
@@ -249,9 +301,9 @@ namespace VaporInfrastructure.Controllers
                 catch (DbUpdateException)
                 {
                     var gameWithRelations = await _context.Games
-                        .Include(g => g.Publisher)
-                        .Include(g => g.Genres)
-                        .FirstOrDefaultAsync(m => m.Id == id);
+                                                  .Include(g => g.Publisher)
+                                                  .Include(g => g.Genres)
+                                                  .FirstOrDefaultAsync(m => m.Id == id);
 
                     ViewBag.ErrorMessage = "Неможливо видалити цю гру, оскільки до неї прив'язані коментарі.";
 

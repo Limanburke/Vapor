@@ -5,31 +5,27 @@
 }
 
 <h1>Видавники</h1>
-
 <p>
-    <a asp-action="Create">Додати нового видавця</a>
+    <a asp-action="Create" class="btn btn-sm btn-outline-success">Додати видавця</a>
 </p>
 <table class="table">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
+        <tr class="table-primary">
+            <th> @Html.DisplayNameFor(model => model.Name) </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Ігри видавця</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="align-middle"> @Html.DisplayFor(modelItem => item.Name) </td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Редагувати</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Деталі</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Видалити</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
