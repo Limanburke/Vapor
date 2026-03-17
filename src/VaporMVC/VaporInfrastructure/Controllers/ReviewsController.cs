@@ -75,7 +75,7 @@ namespace VaporInfrastructure.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GameId,UserId,Content,Raiting,CreatedDate,Id")] Review review)
+        public async Task<IActionResult> Create([Bind("GameId,UserId,Content,Rating,CreatedDate,Id")] Review review)
         {
             bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
             bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
@@ -136,7 +136,7 @@ namespace VaporInfrastructure.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GameId,UserId,Content,Raiting,CreatedDate,Id")] Review review)
+        public async Task<IActionResult> Edit(int id, [Bind("GameId,UserId,Content,Rating,CreatedDate,Id")] Review review)
         {
             bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
             bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);

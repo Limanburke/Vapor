@@ -54,7 +54,7 @@ else
                         }
                     </td>
                     <td class="text-success fw-bold"> @Html.DisplayFor(modelItem => item.Price) </td>
-                    <td> @Html.DisplayFor(modelItem => item.ReleasedDate) </td>
+                    <td> @item.ReleasedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm") </td>
                     <td> @Html.DisplayFor(modelItem => item.Publisher.Name) </td>
                     <td style="max-width: 150px;" class="text-truncate text-info" title="@string.Join(", ", item.Genres.Select(g => g.Name))"> 
                         @string.Join(", ", item.Genres.Select(g => g.Name)) </td>
@@ -64,7 +64,7 @@ else
                     <td class="text-warning fw-bold">
                         @if (item.Reviews.Any())
                         {
-                            <span>⭐ @item.Reviews.Average(r => r.Raiting).ToString("0.0")</span>
+                            <span>⭐ @item.Reviews.Average(r => r.Rating).ToString("0.0")</span>
                         }
                         else
                         {

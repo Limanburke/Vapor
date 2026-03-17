@@ -75,7 +75,7 @@ namespace VaporInfrastructure.Controllers
                 {
                     UserId = currentUserId,
                     StatusId = 1,
-                    CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 _context.Orders.Add(order);

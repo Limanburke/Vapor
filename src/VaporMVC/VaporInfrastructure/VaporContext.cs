@@ -69,6 +69,11 @@ public partial class VaporContext : DbContext
                         j.HasKey("GameId", "GenreId").HasName("GameGenres_pkey");
                         j.ToTable("GameGenres");
                     });
+
+            entity.Property(e => e.ReleasedDate)
+                  .HasConversion(
+                  v => v.ToUniversalTime(),
+                  v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         });
 
         modelBuilder.Entity<Genre>(entity =>
@@ -91,6 +96,11 @@ public partial class VaporContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Order_User");
+
+            entity.Property(e => e.CreatedDate)
+                  .HasConversion(
+                  v => v.ToUniversalTime(),
+                  v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
@@ -121,6 +131,11 @@ public partial class VaporContext : DbContext
                 .HasForeignKey(d => d.GameId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PriceHistory_Game");
+
+            entity.Property(e => e.ChangedData)
+                  .HasConversion(
+                  v => v.ToUniversalTime(),
+                  v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         });
 
         modelBuilder.Entity<Publisher>(entity =>
@@ -143,6 +158,11 @@ public partial class VaporContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Review_User");
+
+            entity.Property(e => e.CreatedDate)
+                  .HasConversion(
+                  v => v.ToUniversalTime(),
+                  v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         });
 
         modelBuilder.Entity<Status>(entity =>

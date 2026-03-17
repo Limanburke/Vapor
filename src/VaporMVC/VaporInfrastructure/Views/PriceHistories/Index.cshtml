@@ -39,7 +39,7 @@
                             <span class="badge bg-danger ms-1">↑</span>
                         }
                     </td>
-                    <td class="align-middle"> @Html.DisplayFor(modelItem => item.ChangedData) </td>
+                    <td class="align-middle"> @item.ChangedData.ToLocalTime().ToString("dd.MM.yyyy HH:mm") </td>
                 </tr>
             }
         </tbody>

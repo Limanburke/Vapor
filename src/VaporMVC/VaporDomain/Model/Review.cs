@@ -16,10 +16,10 @@ public partial class Review : Entity
     public string Content { get; set; } = null!;
     [Range(1, 10, ErrorMessage = "Рейтинг повинен бути від 1 до 10")]
     [Display(Name = "Рейтинг")]
-    public int Raiting { get; set; }
-    [DataType(DataType.Date)]
+    public int Rating { get; set; }
+    [DataType(DataType.DateTime)]
     [Display(Name = "Дата створення")]
-    public DateOnly CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
     [Required(ErrorMessage = "Гра є обов'язковою для коментаря")]
     [Display(Name = "Гра")]
     public virtual Game Game { get; set; } = null!;

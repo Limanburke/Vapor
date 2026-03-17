@@ -2,6 +2,8 @@ using VaporInfrastructure;
 using Microsoft.EntityFrameworkCore;
 using VaporInfrastructure.Models;
 
+//AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

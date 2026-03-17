@@ -29,7 +29,7 @@
                 {
                     <span class="badge bg-danger fs-6 me-2">Приховано</span>
                 }
-                <span class="text-muted">Дата релізу: @Html.DisplayFor(model => model.ReleasedDate)</span>
+                <span class="text-muted">Реліз: @Model.ReleasedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
             </div>
             <h5 class="text-primary mt-2">Видавець</h5>
             <p class="fs-5">@Model.Publisher.Name</p>
@@ -64,7 +64,7 @@
                     @foreach (var priceHist in Model.PriceHistories.OrderByDescending(p => p.ChangedData))
                     {
                         <li class="list-group-item bg-transparent text-light px-0 d-flex justify-content-between align-items-center border-secondary">
-                            <span class="text-muted small">@priceHist.ChangedData</span>
+                            <span class="text-muted small">@priceHist.ChangedData.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
                             <span>
                                 <span class="text-decoration-line-through text-muted me-2">@priceHist.OldPrice$</span>
                                 <span class="@(priceHist.NewPrice < priceHist.OldPrice ? "text-success" : "text-danger") fw-bold">@priceHist.NewPrice$</span>
@@ -87,7 +87,7 @@
             @if (Model.Reviews.Any())
             {
                 <div class="bg-warning text-dark px-3 py-1 rounded-pill fw-bold fs-5 shadow-sm">
-                    ⭐ @Model.Reviews.Average(r => r.Raiting).ToString("0.0") / 10
+                    ⭐ @Model.Reviews.Average(r => r.Rating).ToString("0.0") / 10
                     <span class="fs-6 fw-normal ms-1">(@Model.Reviews.Count)</span>
                 </div>
             }
@@ -107,9 +107,9 @@
                     <div class="card bg-dark border-secondary p-3 h-100 shadow-sm">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <strong class="text-info fs-5">@review.User.Username</strong>
-                            <span class="badge border border-warning text-warning fs-6">⭐ @review.Raiting</span>
+                            <span class="badge border border-warning text-warning fs-6">⭐ @review.Rating</span>
                         </div>
-                        <div class="text-muted small mb-2">@review.CreatedDate.ToString("dd.MM.yyyy")</div>
+                        <div class="text-muted small mb-2">@review.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH: mm")</div>
                         <p class="mb-0 fst-italic text-light">"@review.Content"</p>
                     </div>
                 </div>

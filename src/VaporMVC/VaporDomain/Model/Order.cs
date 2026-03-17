@@ -15,8 +15,8 @@ public partial class Order : Entity
     public int StatusId { get; set; }
     [Display(Name = "Дата створення замовлення")]
     [Required(ErrorMessage = "Дата створення замовлення є обов'язковою")]
-    [DataType(DataType.Date)]
-    public DateOnly CreatedDate { get; set; }
+    [DataType(DataType.DateTime)]
+    public DateTime CreatedDate { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 

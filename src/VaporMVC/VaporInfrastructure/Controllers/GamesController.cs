@@ -211,7 +211,7 @@ namespace VaporInfrastructure.Controllers
                             GameId = game.Id,
                             OldPrice = gameToUpdate.Price,
                             NewPrice = game.Price,
-                            ChangedData = DateOnly.FromDateTime(DateTime.Now)
+                            ChangedData = DateTime.UtcNow
                         };
                         _context.PriceHistories.Add(priceHistory);
                     }

@@ -13,7 +13,7 @@
         <thead>
             <tr class="table-primary">
                 <th>@Html.DisplayNameFor(model => model.Content)</th>
-                <th>@Html.DisplayNameFor(model => model.Raiting)</th>
+                <th>@Html.DisplayNameFor(model => model.Rating)</th>
                 <th>@Html.DisplayNameFor(model => model.CreatedDate)</th>
                 <th>@Html.DisplayNameFor(model => model.Game)</th>
                 <th>@Html.DisplayNameFor(model => model.User)</th>
@@ -25,8 +25,8 @@
             {
                 <tr>
                     <td class="align-middle text-truncate" style="max-width: 200px;"> @Html.DisplayFor(modelItem => item.Content) </td>
-                    <td class="align-middle fw-bold text-warning"> ⭐ @Html.DisplayFor(modelItem => item.Raiting)/10 </td>
-                    <td class="align-middle"> @Html.DisplayFor(modelItem => item.CreatedDate) </td>
+                    <td class="align-middle fw-bold text-warning"> ⭐ @Html.DisplayFor(modelItem => item.Rating)/10 </td>
+                    <td class="align-middle"> @item.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm") </td>
                     <td class="align-middle"> @Html.DisplayFor(modelItem => item.Game.Title) </td>
                     <td class="align-middle"> @Html.DisplayFor(modelItem => item.User.Username) </td>
                     <td class="text-end align-middle">

@@ -34,8 +34,8 @@ public partial class Game : Entity
 
     [Required(ErrorMessage = "Дата виходу є обов'язковою")]
     [DisplayName("Дата виходу")]
-    [DataType(DataType.Date)]
-    public DateOnly ReleasedDate { get; set; }
+    [DataType(DataType.DateTime)]
+    public DateTime ReleasedDate { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     [DisplayName("Історя цін")]

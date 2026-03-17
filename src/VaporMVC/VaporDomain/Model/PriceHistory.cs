@@ -23,8 +23,8 @@ public partial class PriceHistory : Entity
     public decimal NewPrice { get; set; }
 
     [Display(Name = "Дата зміни")]
-    [DataType(DataType.Date)]
-    public DateOnly ChangedData { get; set; }
+    [DataType(DataType.DateTime)]
+    public DateTime ChangedData { get; set; }
 
     [Display(Name = "Гра")]
     public virtual Game Game { get; set; } = null!;
