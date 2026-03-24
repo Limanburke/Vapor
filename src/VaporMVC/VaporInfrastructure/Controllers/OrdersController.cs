@@ -152,6 +152,7 @@ namespace VaporInfrastructure.Controllers
 
             if (order != null && order.OrderItems.Any())
             {
+                order.CreatedDate = DateTime.UtcNow;
                 order.StatusId = 2;
                 _context.Orders.Update(order);
                 await _context.SaveChangesAsync();

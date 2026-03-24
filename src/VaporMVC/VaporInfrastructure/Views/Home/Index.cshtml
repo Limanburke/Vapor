@@ -47,8 +47,8 @@
     <div class="input-group">
         <input type="text" name="searchString" class="form-control" placeholder="Пошук за назвою гри...">
         <select name="genreId" class="form-select" style="max-width: 200px;">
-            <option value="">Усі жанри</option> 
-            @foreach(var genre in ViewBag.Genres)
+            <option value="">Усі жанри</option>
+            @foreach (var genre in ViewBag.Genres)
             {
                 <option value="@genre.Id">@genre.Name</option>
             }
@@ -89,4 +89,117 @@
             </div>
         </div>
     }
-</div>
+
+    <h2 class="mt-5 mb-4 text-info">Статистика магазину</h2>
+
+    <div class="row mb-5">
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card bg-dark border-info shadow-sm">
+                <div id="publisherChart" style="width: 100%; height: 350px;"></div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card bg-dark border-info shadow-sm">
+                <div id="genreChart" style="width: 100%; height: 350px;"></div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card bg-dark border-success shadow-sm">
+                <div id="ordersChart" style="width: 100%; height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts
+    {
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+        <script type="text/javascript">
+            google.charts.load('current', { 'packages': ['corechart'] });
+            google.charts.setOnLoadCallback(drawAllCharts);
+
+            function drawAllCharts() {
+            drawPublisherChart();
+            drawGenreChart();
+            drawOrdersChart();
+            }
+
+            function drawPublisherChart() {
+            fetch('/api/charts/countGameByPublisher')
+            .then(response => response.json())
+            .then(data => {
+            const dataTable = new google.visualization.DataTable();
+            dataTable.addColumn('string', 'Видавець');
+            dataTable.addColumn('number', 'Кількість ігор');
+
+            data.forEach(item => {
+            dataTable.addRow([item.publisher, item.count]);
+            });
+
+            const options = {
+            title: 'Ігри за видавцями',
+            backgroundColor: 'transparent',
+            titleTextStyle: { color: '#0dcaf0', fontSize: 18 },
+            legend: { position: 'none' },
+            hAxis: { textStyle: { color: '#fff' } },
+            vAxis: { textStyle: { color: '#fff' } }
+            };
+
+            const chart = new google.visualization.ColumnChart(document.getElementById('publisherChart'));
+            chart.draw(dataTable, options);
+            });
+            }
+
+            function drawGenreChart() {
+            fetch('/api/charts/countGameByGenre')
+            .then(response => response.json())
+            .then(data => {
+            const dataTable = new google.visualization.DataTable();
+            dataTable.addColumn('string', 'Жанр');
+            dataTable.addColumn('number', 'Кількість ігор');
+
+            data.forEach(item => {
+            dataTable.addRow([item.genre, item.count]);
+            });
+
+            const options = {
+            title: 'Популярність жанрів',
+            backgroundColor: 'transparent',
+            titleTextStyle: { color: '#0dcaf0', fontSize: 18 },
+            legend: { textStyle: { color: '#fff' } },
+            pieHole: 0.3
+            };
+
+            const chart = new google.visualization.PieChart(document.getElementById('genreChart'));
+            chart.draw(dataTable, options);
+            });
+            }
+
+            function drawOrdersChart() {
+            fetch('/api/charts/countOrdersByDay')
+            .then(response => response.json())
+            .then(data => {
+            const dataTable = new google.visualization.DataTable();
+            dataTable.addColumn('string', 'День');
+            dataTable.addColumn('number', 'Кількість замовлень');
+
+            data.forEach(item => {
+            dataTable.addRow([item.day, item.orderCount]);
+            });
+
+            const options = {
+            title: 'Динаміка замовлень',
+            backgroundColor: 'transparent',
+            titleTextStyle: { color: '#198754', fontSize: 18 },
+            legend: { position: 'none' },
+            hAxis: { textStyle: { color: '#fff' } },
+            vAxis: { textStyle: { color: '#fff' } },
+            colors: ['#198754']
+            };
+
+            const chart = new google.visualization.LineChart(document.getElementById('ordersChart'));
+            chart.draw(dataTable, options);
+            });
+            }
+        </script>
+    }
