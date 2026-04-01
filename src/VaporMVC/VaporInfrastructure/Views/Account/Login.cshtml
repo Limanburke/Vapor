@@ -1,0 +1,35 @@
+﻿@model VaporInfrastructure.ViewModel.LoginViewModel
+
+@{
+    ViewData["Title"] = "Вхід у Vapor";
+}
+
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-dark border-info shadow-lg" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <h2 class="text-center text-info fw-bold mb-4" style="text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);">Вхід у Vapor</h2>              
+                <form method="post" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>                  
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Email" class="form-control bg-secondary text-white border-0"/>
+                        <span asp-validation-for="Email" class="text-warning"></span>
+                    </div>                  
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Password" class="form-control bg-secondary text-white border-0"/>
+                        <span asp-validation-for="Password" class="text-warning"></span>
+                    </div>                                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-info fw-bold text-dark fs-5">Увійти</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

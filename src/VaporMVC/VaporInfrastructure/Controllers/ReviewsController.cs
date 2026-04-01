@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using VaporDomain.Model;
 using VaporInfrastructure;
 
 namespace VaporInfrastructure.Controllers
 {
+    [Authorize]
     public class ReviewsController : Controller
     {
         private readonly VaporContext _context;
@@ -20,6 +22,7 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Reviews
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Index()
         {
             var vaporContext = _context.Reviews.Include(r => r.Game).Include(r => r.User);
@@ -27,6 +30,7 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Reviews/Details/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -109,7 +113,6 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Reviews/Edit/5
-
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)

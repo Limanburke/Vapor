@@ -28,7 +28,7 @@
                     <td class="align-middle fw-bold text-warning"> ⭐ @Html.DisplayFor(modelItem => item.Rating)/10 </td>
                     <td class="align-middle"> @item.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm") </td>
                     <td class="align-middle"> @Html.DisplayFor(modelItem => item.Game.Title) </td>
-                    <td class="align-middle"> @Html.DisplayFor(modelItem => item.User.Username) </td>
+                    <td class="align-middle"> @Html.DisplayFor(modelItem => item.User.UserName) </td>
                     <td class="text-end align-middle">
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Редагувати</a>
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Деталі</a>

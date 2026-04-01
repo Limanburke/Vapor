@@ -14,7 +14,7 @@ namespace VaporInfrastructure.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? searchString, int? genreId, int? publisherId)
+        public async Task<IActionResult> Index(string? searchString, int? genreId, int? publisherId, int? year)
         {
 
             var gamesQuery = _context.Games
@@ -41,6 +41,18 @@ namespace VaporInfrastructure.Controllers
             ViewBag.Genres = _context.Genres.ToList();
             ViewBag.Publishers = _context.Publishers.ToList();
 
+            var years = await _context.Orders
+                              .Select(o => o.CreatedDate.Year)
+                              .Distinct()
+                              .OrderByDescending(y => y)
+                              .ToListAsync();
+
+            if (!years.Any()) years.Add(DateTime.Now.Year);
+
+            int selectedYear = year ?? years.First();
+
+            ViewBag.Years = years;
+            ViewBag.SelectedYear = selectedYear;
 
             return View(await gamesQuery.ToListAsync());
         }

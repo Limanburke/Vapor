@@ -1,0 +1,32 @@
+﻿@model VaporInfrastructure.ViewModel.ChangeRoleViewModel
+
+@{
+    ViewData["Title"] = "Редагування ролей";
+}
+
+<div class="container mt-4">
+    <div class="d-flex align-items-center mb-4">
+        <h2 class="text-info m-0">Керування ролями</h2>
+    </div>
+    <div class="card bg-transparent border-primary shadow-sm p-4 col-md-6 col-lg-5">
+        <h5 class="mb-4 text-light">Користувач: <span class="text-warning">@Model.UserEmail</span></h5>
+        <form asp-controller="Roles" asp-action="Edit" method="post">
+            <input type="hidden" name="userId" value="@Model.UserId" />
+            <div class="form-group mb-4">
+                <p class="fw-bold text-light mb-2">Оберіть ролі:</p>
+                @foreach (var role in Model.AllRoles)
+                {
+                    bool isChecked = Model.UserRoles.Contains(role.Name);
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" name="roles" value="@role.Name" id="role_@role.Name" @(isChecked ? "checked" : "") />
+                        <label class="form-check-label text-light" for="role_@role.Name"> @role.Name </label>
+                    </div>
+                }
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary fw-bold">Зберегти зміни</button>
+                <a asp-controller="Users" asp-action="Index" class="btn btn-outline-secondary fw-bold">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Мій профіль";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Налаштування профілю</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Особисті дані</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Email:</strong> <span class="text-muted">@ViewBag.Email</span></p>
+                    <p class="mb-0"><strong>Поточний нікнейм:</strong> <span class="text-muted">@ViewBag.Username</span></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Зміна нікнейму</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Profile" asp-action="ChangeNickname" method="post">
+                        <div class="mb-3">
+                            <label for="NewNickname" class="form-label fw-bold">Новий нікнейм</label>
+                            <input type="text" class="form-control" id="NewNickname" name="NewNickname" required minlength="3" maxlength="50" />
+                            <span class="text-danger small">@Html.ValidationMessage("NewNickname")</span>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary fw-bold">Зберегти нікнейм</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Зміна паролю</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Profile" asp-action="ChangePassword" method="post">
+                        <div class="mb-3">
+                            <label for="OldPassword" class="form-label fw-bold">Поточний пароль</label>
+                            <input type="password" class="form-control" id="OldPassword" name="OldPassword" required />
+                            <span class="text-danger small">@Html.ValidationMessage("OldPassword")</span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="NewPassword" class="form-label fw-bold">Новий пароль</label>
+                            <input type="password" class="form-control" id="NewPassword" name="NewPassword" required minlength="6" />
+                            <span class="text-danger small">@Html.ValidationMessage("NewPassword")</span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ConfirmNewPassword" class="form-label fw-bold">Підтвердіть новий пароль</label>
+                            <input type="password" class="form-control" id="ConfirmNewPassword" name="ConfirmNewPassword" required />
+                            <span class="text-danger small">@Html.ValidationMessage("ConfirmNewPassword")</span>
+                        </div>
+                        <button type="submit" class="btn btn-outline-warning fw-bold">Змінити пароль</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

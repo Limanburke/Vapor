@@ -1,25 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using VaporDomain.Model;
 using VaporInfrastructure;
+using Microsoft.AspNetCore.Identity;
 
 namespace VaporInfrastructure.Controllers
 {
+    [Authorize]
     public class OrdersController : Controller
     {
         private readonly VaporContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public OrdersController(VaporContext context)
+        public OrdersController(VaporContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Orders
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Index()
         {
             var vaporContext = _context.Orders.Include(o => o.Status).Include(o => o.User);
@@ -27,6 +34,7 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Orders/Details/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -55,7 +63,7 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int? gameId)
         {
-            int currentUserId = 1; // placeholder
+            int currentUserId = int.Parse(_userManager.GetUserId(User));
 
             var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
 
@@ -103,7 +111,7 @@ namespace VaporInfrastructure.Controllers
 
         public async Task<IActionResult> Cart()
         {
-            int currentUserId = 1; // placeholder
+            int currentUserId = int.Parse(_userManager.GetUserId(User));
 
             var cart = await _context.Orders
                              .Include(o => o.OrderItems)
@@ -121,7 +129,7 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteFromCart(int? gameId)
         {
-            int currentUserId = 1; // placeholder
+            int currentUserId = int.Parse(_userManager.GetUserId(User));
 
             var cart = await _context.Orders
                              .Include(o => o.OrderItems)
@@ -148,7 +156,9 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == orderId);
+            int currentUserId = int.Parse(_userManager.GetUserId(User));
+
+            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == currentUserId);
 
             if (order != null && order.OrderItems.Any())
             {
@@ -163,7 +173,7 @@ namespace VaporInfrastructure.Controllers
 
         public async Task<IActionResult> Library()
         {
-            int currentUserId = 1; // placeholder
+            int currentUserId = int.Parse(_userManager.GetUserId(User));
 
             var library = await _context.Orders
                                 .Include(o => o.OrderItems)
@@ -259,6 +269,7 @@ namespace VaporInfrastructure.Controllers
         //}
 
         // GET: Orders/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -288,6 +299,7 @@ namespace VaporInfrastructure.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(m => m.Id == id);

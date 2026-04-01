@@ -7,42 +7,45 @@
 <div class="text-center mb-4">
     <h1 class="display-4 text-info fw-bold" style="text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);">Vapor</h1>
 </div>
-<details class="mb-5">
-    <summary class="fs-4 text-primary fw-bold mb-3" style="cursor: pointer; list-style: none;">
-        <span class="badge bg-primary rounded-pill me-2">~</span> Панель Адміністратора
-    </summary>
-    <div class="card bg-transparent border-primary p-4">
-        <div class="row g-3">
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="Publishers" asp-action="Index" class="btn btn-outline-info w-100">Видавники</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="Games" asp-action="Index" class="btn btn-outline-info w-100">Ігри</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="Genres" asp-action="Index" class="btn btn-outline-info w-100">Жанри</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="Users" asp-action="Index" class="btn btn-outline-info w-100">Користувачі</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="Reviews" asp-action="Index" class="btn btn-outline-info w-100">Відгуки</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="PriceHistories" asp-action="Index" class="btn btn-outline-info w-100">Історія цін</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-info w-100">Замовлення</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="OrderItems" asp-action="Index" class="btn btn-outline-info w-100">Позиції замовлень</a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a asp-controller="Status" asp-action="Index" class="btn btn-outline-info w-100">Статуси</a>
+@if (User.IsInRole("admin"))
+{
+    <details class="mb-5">
+        <summary class="fs-4 text-primary fw-bold mb-3" style="cursor: pointer; list-style: none;">
+            <span class="badge bg-primary rounded-pill me-2">~</span> Панель Адміністратора
+        </summary>
+        <div class="card bg-transparent border-primary p-4">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Publishers" asp-action="Index" class="btn btn-outline-info w-100">Видавники</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Games" asp-action="Index" class="btn btn-outline-info w-100">Ігри</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Genres" asp-action="Index" class="btn btn-outline-info w-100">Жанри</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Users" asp-action="Index" class="btn btn-outline-info w-100">Користувачі</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Reviews" asp-action="Index" class="btn btn-outline-info w-100">Відгуки</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="PriceHistories" asp-action="Index" class="btn btn-outline-info w-100">Історія цін</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-info w-100">Замовлення</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="OrderItems" asp-action="Index" class="btn btn-outline-info w-100">Позиції замовлень</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a asp-controller="Status" asp-action="Index" class="btn btn-outline-info w-100">Статуси</a>
+                </div>
             </div>
         </div>
-    </div>
-</details>
+    </details>
+}
 <form method="get" asp-action="Index" class="mb-4">
     <div class="input-group">
         <input type="text" name="searchString" class="form-control" placeholder="Пошук за назвою гри...">
@@ -105,7 +108,27 @@
         </div>
         <div class="col-lg-4 col-md-12 mb-4">
             <div class="card bg-dark border-success shadow-sm">
-                <div id="ordersChart" style="width: 100%; height: 350px;"></div>
+                <div class="card-header bg-transparent border-bottom border-success d-flex justify-content-between align-items-center">
+                    <span class="text-success fw-bold">Рік:</span>
+                    <form method="get" class="m-0">
+                        <select name="year" class="form-select bg-dark text-white border-success form-select-sm" onchange="this.form.submit()">
+                            @foreach (var y in ViewBag.Years)
+                            {
+                                if (y == ViewBag.SelectedYear)
+                                {
+                                    <option value="@y" selected>@y</option>
+                                }
+                                else
+                                {
+                                    <option value="@y">@y</option>
+                                }
+                            }
+                        </select>
+                    </form>
+                </div>
+                <div class="card-body p-0">
+                    <div id="ordersChart" style="width: 100%; height: 310px;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -176,16 +199,18 @@
             }
 
             function drawOrdersChart() {
-            fetch('/api/charts/countOrdersByDay')
+            fetch(`/api/charts/countOrdersByMonth?year=@ViewBag.SelectedYear`)
             .then(response => response.json())
             .then(data => {
             const dataTable = new google.visualization.DataTable();
-            dataTable.addColumn('string', 'День');
+            dataTable.addColumn('string', 'Місяць');
             dataTable.addColumn('number', 'Кількість замовлень');
 
-            data.forEach(item => {
-            dataTable.addRow([item.day, item.orderCount]);
-            });
+            const monthNames = ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру'];
+
+            for (let i = 1; i <= 12; i++) {
+            dataTable.addRow([monthNames[i - 1], data[i]]);
+            }
 
             const options = {
             title: 'Динаміка замовлень',

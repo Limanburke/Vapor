@@ -1,26 +1,32 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using VaporDomain.Model;
 using VaporInfrastructure;
 
 namespace VaporInfrastructure.Controllers
 {
+    
     public class GamesController : Controller
     {
         private readonly VaporContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public GamesController(VaporContext context)
+        public GamesController(VaporContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Games
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Index(int? id, string? name)
         {
             if (id == null)
@@ -46,6 +52,7 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Games/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -53,7 +60,7 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            int currentUserId = 1; //placeholder
+            int currentUserId = int.Parse(_userManager.GetUserId(User));
 
             var game = await _context.Games
                 .Include(g => g.Publisher)
@@ -78,6 +85,7 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Games/Create
+        [Authorize(Roles = "admin")]
         public IActionResult Create(int? publisherId)
         {
             if (publisherId != null)
@@ -103,6 +111,7 @@ namespace VaporInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([Bind("PublisherId,Title,IsAvailable,Description,Price,ReleasedDate,Id")] Game game, int[] selectedGenres)
         {
             var publisher = _context.Publishers.FirstOrDefault(p => p.Id == game.PublisherId);
@@ -140,6 +149,7 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Games/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -169,6 +179,7 @@ namespace VaporInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("PublisherId,Title,IsAvailable,Description,Price,ReleasedDate,Id")] Game game, int[] Genres)
         {
             if (id != game.Id)
@@ -257,6 +268,7 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Games/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -282,6 +294,7 @@ namespace VaporInfrastructure.Controllers
         // POST: Games/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var game = await _context.Games
