@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using VaporDomain.Model;
 using VaporInfrastructure;
 using VaporInfrastructure.Models;
-using VaporDomain.Model;
+using VaporInfrastructure.Services;
 
 //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -16,6 +17,8 @@ builder.Services.AddDbContext<VaporContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.")));
 
 builder.Services.AddIdentity<User, IdentityRole<int>>().AddEntityFrameworkStores<VaporContext>();
+
+builder.Services.AddScoped<IDataPortServiceFactory<Game>, GameDataPortServiceFactory>();
 
 var app = builder.Build();
 

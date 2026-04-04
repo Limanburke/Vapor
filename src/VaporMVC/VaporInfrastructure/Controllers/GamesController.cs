@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VaporDomain.Model;
 using VaporInfrastructure;
+using VaporInfrastructure.Services;
 
 namespace VaporInfrastructure.Controllers
 {
@@ -18,11 +19,13 @@ namespace VaporInfrastructure.Controllers
     {
         private readonly VaporContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly IDataPortServiceFactory<Game> _gameDataPortServiceFactory;
 
-        public GamesController(VaporContext context, UserManager<User> userManager)
+        public GamesController(VaporContext context, UserManager<User> userManager, IDataPortServiceFactory<Game> gameDataPortServiceFactory)
         {
             _context = context;
             _userManager = userManager;
+            _gameDataPortServiceFactory = gameDataPortServiceFactory;
         }
 
         // GET: Games
@@ -49,6 +52,37 @@ namespace VaporInfrastructure.Controllers
                                    .Include(g => g.Reviews);
 
             return View(await gamesByPublisher.ToListAsync());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken)
+        {
+            var importService = _gameDataPortServiceFactory.GetImportService(fileExcel.ContentType);
+            using var stream = fileExcel.OpenReadStream();
+            await importService.ImportFromStreamAsync(stream, cancellationToken);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Export([FromQuery] string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", CancellationToken cancellationToken = default)
+        {
+            var exportService = _gameDataPortServiceFactory.GetExportService(contentType);
+
+            var memoryStream = new MemoryStream();
+
+            await exportService.WriteToAsync(memoryStream, cancellationToken);
+
+            await memoryStream.FlushAsync(cancellationToken);
+            memoryStream.Position = 0;
+
+            return new FileStreamResult(memoryStream, contentType)
+            {
+                FileDownloadName = $"Vapor_Games_{DateTime.UtcNow.ToString("dd_MM_yyyy")}.xlsx"
+            };
         }
 
         // GET: Games/Details/5
@@ -318,7 +352,7 @@ namespace VaporInfrastructure.Controllers
                                                   .Include(g => g.Genres)
                                                   .FirstOrDefaultAsync(m => m.Id == id);
 
-                    ViewBag.ErrorMessage = "Неможливо видалити цю гру, оскільки до неї прив'язані коментарі.";
+                    ViewBag.ErrorMessage = "Неможливо видалити цю гру, оскільки до неї прив'язані коментарі або вона наявна в замовленні.";
 
                     ViewBag.GameTitle = gameWithRelations?.Title;
 
