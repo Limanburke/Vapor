@@ -22,23 +22,78 @@ namespace VaporInfrastructure.Services
 
             using (var workbook = new XLWorkbook(stream))
             {
+
+                int rowNumber = 1;
+
                 var worksheet = workbook.Worksheet(1);
                 foreach (var row in worksheet.RowsUsed().Skip(1))
                 {
+                    rowNumber++;
 
-                    var gameTitle = row.Cell(1).Value.ToString();
+                    var gameTitle = row.Cell(1).Value.ToString().Trim();
+                    if (string.IsNullOrWhiteSpace(gameTitle))
+                    {
+                        throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва гри є обов'язковою");
+                    }
+                    if (gameTitle.Length > 200)
+                    {
+                        throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва гри не може перевищувати 200 символів");
+                    }
+
                     var game = await _context.Games.FirstOrDefaultAsync(g => g.Title == gameTitle, cancellationToken);
 
                     if (game == null)
                     {
                         game = new Game();
                         game.Title = gameTitle;
-                        game.Price = (decimal)row.Cell(2).Value.GetNumber();
-                        game.IsAvailable = row.Cell(3).Value.GetBoolean();
-                        game.Description = row.Cell(4).Value.ToString();
-                        game.ReleasedDate = row.Cell(5).Value.GetDateTime();
 
-                        var publisherName = row.Cell(6).Value.ToString();
+                        var priceCell = row.Cell(2);
+                        if (priceCell.DataType == XLDataType.Number)
+                        {
+                            game.Price = (decimal)priceCell.GetDouble();
+                            if (game.Price < 0 || game.Price > 99999999.99m)
+                            {
+                                throw new InvalidDataException($"Помилка у рядку {rowNumber}: Ціна має бути від 0 до 99 999 999.99");
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidDataException($"Помилка у рядку {rowNumber}: Комірка з ціною має бути числового формату");
+                        }
+
+                        var isAvailableCell = row.Cell(3);
+                        if (isAvailableCell.DataType == XLDataType.Boolean)
+                        {
+                            game.IsAvailable = isAvailableCell.GetBoolean();
+                        }
+                        else
+                        {
+                            game.IsAvailable = false;
+                        }
+
+                        game.Description = row.Cell(4).Value.ToString();
+
+                        var dateCell = row.Cell(5);
+                        if (dateCell.DataType == XLDataType.DateTime)
+                        {
+                            game.ReleasedDate = dateCell.GetDateTime();
+                        }
+                        else
+                        {
+                            game.ReleasedDate = DateTime.UtcNow;
+                        }
+
+                        var publisherName = row.Cell(6).Value.ToString().Trim();
+
+                        if (string.IsNullOrWhiteSpace(publisherName))
+                        {
+                            throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва видавця є обов'язковою");
+                        }
+                        if (publisherName.Length > 100)
+                        {
+                            throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва видавця не може перевищувати 100 символів");
+                        }
+
                         var publisher = await _context.Publishers.FirstOrDefaultAsync(p => p.Name == publisherName);
 
                         if (publisher == null)
@@ -50,24 +105,35 @@ namespace VaporInfrastructure.Services
 
                         game.Publisher = publisher;
 
-                        var genres = row.Cell(7).Value.ToString().Split(',');
-
-                        foreach (var gen in genres)
+                        var genresText = row.Cell(7).Value.ToString();
+                        if (!string.IsNullOrWhiteSpace(genresText))
                         {
-                            var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Name == gen.Trim());
-                            if (genre == null)
-                            {
-                                genre = new Genre();
-                                genre.Name = gen.Trim();
-                                _context.Genres.Add(genre);
-                            }
+                            var genres = genresText.Split(',');
 
-                            game.Genres.Add(genre);
+                            foreach (var gen in genres)
+                            {
+                                var cleanGenreName = gen.Trim();
+                                if (string.IsNullOrWhiteSpace(cleanGenreName)) continue;
+
+                                if (cleanGenreName.Length > 100)
+                                {
+                                    throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва жанру '{cleanGenreName}' не може перевищувати 100 символів");
+                                }
+
+                                var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Name == cleanGenreName);
+                                if (genre == null)
+                                {
+                                    genre = new Genre();
+                                    genre.Name = cleanGenreName;
+                                    _context.Genres.Add(genre);
+                                }
+
+                                game.Genres.Add(genre);
+                            }
                         }
                         _context.Games.Add(game);
                     }
                 }
-
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }

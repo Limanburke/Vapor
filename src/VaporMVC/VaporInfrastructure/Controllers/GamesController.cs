@@ -59,9 +59,29 @@ namespace VaporInfrastructure.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken)
         {
-            var importService = _gameDataPortServiceFactory.GetImportService(fileExcel.ContentType);
-            using var stream = fileExcel.OpenReadStream();
-            await importService.ImportFromStreamAsync(stream, cancellationToken);
+
+            if (fileExcel == null || fileExcel.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Оберіть файл для імпорту";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var importService = _gameDataPortServiceFactory.GetImportService(fileExcel.ContentType);
+                using var stream = fileExcel.OpenReadStream();
+                await importService.ImportFromStreamAsync(stream, cancellationToken);
+
+                TempData["SuccessMessage"] = "Дані успішно імпортовано";
+            }
+            catch (InvalidDataException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Сталася помилка при читанні файлу: " + ex.Message;
+            }
 
             return RedirectToAction(nameof(Index));
         }
