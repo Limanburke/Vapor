@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,12 @@ namespace VaporInfrastructure.Controllers
     public class ReviewsController : Controller
     {
         private readonly VaporContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public ReviewsController(VaporContext context)
+        public ReviewsController(VaporContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Reviews
@@ -42,7 +45,6 @@ namespace VaporInfrastructure.Controllers
                                .Include(r => r.Game)
                                .Include(r => r.User)
                                .FirstOrDefaultAsync(m => m.Id == id);
-
             if (review == null)
             {
                 return NotFound();
@@ -52,23 +54,21 @@ namespace VaporInfrastructure.Controllers
         }
 
         // GET: Reviews/Create
-        public IActionResult Create(int? gameId)
+        public async Task<IActionResult> Create(int? gameId)
         {
             if (gameId != null)
             {
-                var review = _context.Games.FirstOrDefault(r => r.Id == gameId);
-
+                var review = await _context.Games.FirstOrDefaultAsync(r => r.Id == gameId);
                 ViewBag.GameId = review?.Id;
                 ViewBag.GameTitle = review?.Title;
-                ViewBag.IsContextual = true;
             }
             else
             {
-                ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title");
-                ViewBag.IsContextual = false;
+                return NotFound();
             }
 
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email");
+            var userId = int.Parse(_userManager.GetUserId(User)!);
+            ViewBag.UserId = userId;
 
             return View();
         }
@@ -79,12 +79,10 @@ namespace VaporInfrastructure.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GameId,UserId,Content,Rating,CreatedDate,Id")] Review review)
+        public async Task<IActionResult> Create([Bind("GameId,Content,Rating,Id")] Review review)
         {
             bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
-            bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
-
-            if (!(gameExists && userExists))
+            if (!gameExists)
             {
                 return NotFound();
             }
@@ -92,8 +90,11 @@ namespace VaporInfrastructure.Controllers
             ModelState.Remove("Game");
             ModelState.Remove("User");
 
-            bool reviewExists = _context.Reviews.Any(r => r.GameId == review.GameId && r.UserId == review.UserId);
+            var userId = int.Parse(_userManager.GetUserId(User)!);
+            review.UserId = userId;
+            review.CreatedDate = DateTime.UtcNow;
 
+            bool reviewExists = _context.Reviews.Any(r => r.GameId == review.GameId && r.UserId == review.UserId);
             if (reviewExists)
             {
                 ModelState.AddModelError("", "Ви вже залишили відгук до цієї гри.");
@@ -106,9 +107,6 @@ namespace VaporInfrastructure.Controllers
                 return RedirectToAction("Details", "Games", new { id = review.GameId });
             }
 
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
-
             return View(review);
         }
 
@@ -120,15 +118,20 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            var review = await _context.Reviews.FindAsync(id);
-
+            var review = await _context.Reviews
+                   .Include(r => r.Game)
+                   .Include(r => r.User)
+                   .FirstOrDefaultAsync(m => m.Id == id);
             if (review == null)
             {
                 return NotFound();
             }
 
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
+            var userId = int.Parse(_userManager.GetUserId(User)!);
+            if (review.UserId != userId)
+            {
+                return Forbid();
+            }
 
             return View(review);
         }
@@ -139,12 +142,16 @@ namespace VaporInfrastructure.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GameId,UserId,Content,Rating,CreatedDate,Id")] Review review)
+        public async Task<IActionResult> Edit(int id, [Bind("GameId,Content,Rating,Id")] Review review)
         {
             bool gameExists = await _context.Games.AnyAsync(x => x.Id == review.GameId);
-            bool userExists = await _context.Users.AnyAsync(x => x.Id == review.UserId);
+            if (!gameExists)
+            {
+                return NotFound();
+            }
 
-            if (!(gameExists && userExists))
+            var existingReview = await _context.Reviews.FindAsync(review.Id);
+            if (existingReview == null)
             {
                 return NotFound();
             }
@@ -152,21 +159,18 @@ namespace VaporInfrastructure.Controllers
             ModelState.Remove("Game");
             ModelState.Remove("User");
 
-            bool duplicateReviewExists = _context.Reviews.Any(r =>
-                                         r.GameId == review.GameId &&
-                                         r.UserId == review.UserId &&
-                                         r.Id != review.Id);
-
-            if (duplicateReviewExists)
+            var userId = int.Parse(_userManager.GetUserId(User)!);
+            if (existingReview!.UserId != userId)
             {
-                ModelState.AddModelError("", "У вас вже є відгук до цієї гри.");
+                return Forbid();
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(review);
+                    existingReview.Content = review.Content;
+                    existingReview.Rating = review.Rating;
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -180,12 +184,8 @@ namespace VaporInfrastructure.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Games", new { id = review.GameId });
             }
-
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title", review.GameId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", review.UserId);
-
             return View(review);
         }
 
@@ -201,10 +201,15 @@ namespace VaporInfrastructure.Controllers
                                .Include(r => r.Game)
                                .Include(r => r.User)
                                .FirstOrDefaultAsync(m => m.Id == id);
-
             if (review == null)
             {
                 return NotFound();
+            }
+
+            var userId = int.Parse(_userManager.GetUserId(User)!);
+            if (review.UserId != userId && !User.IsInRole("admin"))
+            {
+                return Forbid();
             }
 
             return View(review);
@@ -216,14 +221,25 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var review = await _context.Reviews.FindAsync(id);
-
-            if (review != null)
+            if (review == null)
             {
-                _context.Reviews.Remove(review);
+                return NotFound();
             }
 
+            var userId = int.Parse(_userManager.GetUserId(User)!);
+            if (review.UserId != userId && !User.IsInRole("admin"))
+            {
+                return Forbid();
+            }
+
+            if (review == null)
+            {
+                return NotFound();
+            }
+
+            _context.Reviews.Remove(review);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "Games", new { id = review.GameId });
         }
 
         private bool ReviewExists(int id)

@@ -5,11 +5,8 @@ namespace VaporDomain.Model;
 
 public partial class Publisher : Entity
 {
-    //public int Id { get; set; }
-
     [Required(ErrorMessage = "Поле не повинно бути порожнім")]
     [StringLength(100)]
-    //[RegularExpression(@"^[a-zA-Zа-яА-ЯіІєЄґҐ0-9\s]+$", ErrorMessage = "Допустимі лише літери та цифри")]
     [Display(Name = "Видавець")]
     public string Name { get; set; } = null!;
 

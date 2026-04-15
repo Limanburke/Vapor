@@ -8,8 +8,6 @@ namespace VaporDomain.Model;
 
 public partial class PriceHistory : Entity
 {
-    //public int Id { get; set; }
-
     public int GameId { get; set; }
 
     [Display(Name = "Стара ціна")]

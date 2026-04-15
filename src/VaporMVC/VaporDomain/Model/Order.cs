@@ -6,8 +6,6 @@ namespace VaporDomain.Model;
 
 public partial class Order : Entity
 {
-    //public int Id { get; set; }
-
     [Display(Name = "Користувач")]
     public int UserId { get; set; }
 

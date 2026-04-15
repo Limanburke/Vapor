@@ -7,5 +7,4 @@ namespace VaporInfrastructure.Services
     {
         Task ImportFromStreamAsync(Stream stream, CancellationToken cancellationToken);
     }
-
 }

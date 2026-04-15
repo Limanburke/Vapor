@@ -5,16 +5,13 @@ using System.Linq;
 using VaporDomain.Model;
 using VaporInfrastructure;
 
-
 namespace VaporInfrastructure.Models;
 
 public static class SeedData
 {
     public static void Initialize(IServiceProvider serviceProvider)
     {
-        using (var context = new VaporContext(
-            serviceProvider.GetRequiredService<
-                DbContextOptions<VaporContext>>()))
+        using (var context = new VaporContext(serviceProvider.GetRequiredService<DbContextOptions<VaporContext>>()))
         {
             if (context.Statuses.Any())
             {
@@ -31,4 +28,3 @@ public static class SeedData
         }
     }
 }
-

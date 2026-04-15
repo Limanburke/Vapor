@@ -18,7 +18,6 @@ namespace VaporInfrastructure.Controllers
             _signInManager = signInManager;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -36,23 +35,29 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> ChangeNickname(ChangeNicknameViewModel model)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
+            if (user == null) 
+            { 
+                return NotFound();
+            }
 
+            var oldNickname = user.UserName;
             user.UserName = model.NewNickname;
             var result = await _userManager.UpdateAsync(user);
 
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                await _signInManager.RefreshSignInAsync(user);
-                return RedirectToAction("Index");
+                ViewBag.Email = user.Email;
+                ViewBag.Username = oldNickname;
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("NewNickname", error.Description);
+                }
+                return View("Index", model);
             }
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-
-            return View("Index", model);
+            await _signInManager.RefreshSignInAsync(user);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -60,7 +65,17 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
+            if (user == null) 
+            { 
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Email = user?.Email;
+                ViewBag.Username = user?.UserName;
+                return View("Index", model);
+            }
 
             var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
             if (result.Succeeded)
@@ -69,9 +84,19 @@ namespace VaporInfrastructure.Controllers
                 return RedirectToAction("Index");
             }
 
+            ViewBag.Email = user.Email;
+            ViewBag.Username = user.UserName;
+
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                if (error.Code == "PasswordMismatch")
+                {
+                    ModelState.AddModelError("OldPassword", "Неправильний поточний пароль.");
+                }
+                else
+                {
+                    ModelState.AddModelError("NewPassword", error.Description);
+                }
             }
 
             return View("Index", model);

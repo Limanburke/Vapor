@@ -22,7 +22,6 @@ namespace VaporInfrastructure.Services
 
             using (var workbook = new XLWorkbook(stream))
             {
-
                 int rowNumber = 1;
 
                 var worksheet = workbook.Worksheet(1);
@@ -35,13 +34,13 @@ namespace VaporInfrastructure.Services
                     {
                         throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва гри є обов'язковою");
                     }
+
                     if (gameTitle.Length > 200)
                     {
                         throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва гри не може перевищувати 200 символів");
                     }
 
                     var game = await _context.Games.FirstOrDefaultAsync(g => g.Title == gameTitle, cancellationToken);
-
                     if (game == null)
                     {
                         game = new Game();
@@ -84,7 +83,6 @@ namespace VaporInfrastructure.Services
                         }
 
                         var publisherName = row.Cell(6).Value.ToString().Trim();
-
                         if (string.IsNullOrWhiteSpace(publisherName))
                         {
                             throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва видавця є обов'язковою");
@@ -95,7 +93,6 @@ namespace VaporInfrastructure.Services
                         }
 
                         var publisher = await _context.Publishers.FirstOrDefaultAsync(p => p.Name == publisherName);
-
                         if (publisher == null)
                         {
                             publisher = new Publisher();

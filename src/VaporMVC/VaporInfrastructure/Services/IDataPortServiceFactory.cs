@@ -8,5 +8,4 @@ namespace VaporInfrastructure.Services
         IImportService<TEntity> GetImportService(string contentType);
         IExportService<TEntity> GetExportService(string contentType);
     }
-
 }

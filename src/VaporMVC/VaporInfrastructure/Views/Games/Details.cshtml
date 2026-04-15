@@ -81,6 +81,15 @@
     </div>
 </div>
 <div class="card bg-transparent border-primary p-4 mt-4 mb-5">
+    @{
+        int? currentUserId = ViewBag.CurrentUserId as int?;
+        
+        var myReview = currentUserId.HasValue ? Model.Reviews.FirstOrDefault(r => r.UserId == currentUserId.Value) : null;
+
+        var otherReviews = currentUserId.HasValue
+            ? Model.Reviews.Where(r => r.UserId != currentUserId.Value).OrderByDescending(r => r.CreatedDate)
+            : Model.Reviews.OrderByDescending(r => r.CreatedDate);
+    }
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div class="d-flex align-items-center flex-wrap gap-3">
             <h4 class="text-primary m-0">Відгуки користувачів</h4>
@@ -96,34 +105,61 @@
                 <span class="badge bg-secondary fs-6 rounded-pill">Немає оцінок</span>
             }
         </div>
-        <a asp-controller="Reviews" asp-action="Create" asp-route-gameId="@Model.Id" class="btn btn-outline-primary shadow-sm"> Написати відгук </a>
+        @if (myReview == null && User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            <a asp-controller="Reviews" asp-action="Create" asp-route-gameId="@Model.Id" class="btn btn-outline-primary shadow-sm"> Написати відгук </a>
+        }
     </div>
-    @if (Model.Reviews.Any())
-    {
-        <div class="row g-3">
-            @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedDate))
+    <div class="row g-3">
+        @if (myReview != null)
+        {
+            <div class="col-12 mb-3">
+                <div class="card bg-dark border-info p-3 shadow" style="border-width: 2px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong class="text-info fs-5">Мій відгук</strong>
+                            <span class="text-muted small ms-2">@myReview.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                        </div>
+                        <span class="badge border border-warning text-warning fs-6 bg-transparent">⭐ @myReview.Rating</span>
+                    </div>
+                    <p class="mb-3 fst-italic text-light">"@myReview.Content"</p>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Reviews" asp-action="Edit" asp-route-id="@myReview.Id" class="btn btn-sm btn-outline-info">Редагувати</a>
+                        <a asp-controller="Reviews" asp-action="Delete" asp-route-id="@myReview.Id" class="btn btn-sm btn-outline-danger">Видалити</a>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (otherReviews.Any())
+        {
+            @foreach (var review in otherReviews)
             {
                 <div class="col-md-6">
                     <div class="card bg-dark border-secondary p-3 h-100 shadow-sm">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <strong class="text-info fs-5">@review.User.UserName</strong>
+                            <strong class="text-secondary fs-5">@review.User.UserName</strong>
                             <span class="badge border border-warning text-warning fs-6">⭐ @review.Rating</span>
                         </div>
-                        <div class="text-muted small mb-2">@review.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH: mm")</div>
+                        <div class="text-muted small mb-2">@review.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
                         <p class="mb-0 fst-italic text-light">"@review.Content"</p>
                     </div>
                 </div>
             }
-        </div>
-    }
-    else
-    {
-        <div class="alert border-secondary bg-transparent text-center p-4">
-            <p class="text-muted fs-5 mb-0">Поки немає жодного відгуку</p>
-        </div>
-    }
+        }
+        else if (myReview == null)
+        {
+            <div class="col-12">
+                <div class="alert border-secondary bg-transparent text-center p-4">
+                    <p class="text-muted fs-5 mb-0">Поки немає жодного відгуку</p>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 <div class="mb-5">
-    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">Редагувати гру</a>
-    <a asp-action="Index" class="btn btn-secondary ms-2">Назад до списку</a>
+    @if (User.IsInRole("admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">Редагувати гру</a>
+    }
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Назад до головної сторінки</a>
 </div>

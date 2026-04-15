@@ -22,7 +22,6 @@ namespace VaporInfrastructure.Controllers
         {
             _userManager = userManager;
         }
-
         public async Task<IActionResult> Index()
         {
             return View(await _userManager.Users.ToListAsync());
@@ -33,7 +32,10 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> ToggleBlock(string Id)
         {
             var user = await _userManager.FindByIdAsync(Id);
-            if (user == null) return NotFound();
+            if (user == null) 
+            {
+                return NotFound();
+            }
 
             var isLockedOut = await _userManager.IsLockedOutAsync(user);
             if (isLockedOut)

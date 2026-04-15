@@ -35,7 +35,7 @@
                     </ul>
 
                     <ul class="navbar-nav align-items-center">
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item me-3">
                                 <span class="text-info fw-bold" style="text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);">

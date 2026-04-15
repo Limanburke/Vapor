@@ -4,17 +4,10 @@
     ViewData["Title"] = "Створити відгук";
 }
 
-@if (ViewBag.GameTitle != null)
-{
-    <h1 class="text-info">
-        Додавання відгуку до гри
-        <span class="text-light">@ViewBag.GameTitle</span>
-    </h1>
-}
-else
-{
-    <h1 class="text-info">Створення відгуку</h1>
-}
+<h1 class="text-info">
+    Додавання відгуку до гри
+    <span class="text-light">@ViewBag.GameTitle</span>
+</h1>
 <h4 class="text-primary mt-3">Відгук</h4>
 <hr class="border-primary" />
 <div class="row">
@@ -23,29 +16,12 @@ else
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold"></div>
                 <div class="mb-3">
-                    @if (ViewBag.IsContextual == true)
-                    {
-                        <input type="hidden" value="@ViewBag.GameId" name="GameId" />
-                    }
-                    else
-                    {
-                        <label asp-for="GameId" class="form-label text-info"></label>
-                        <select asp-for="GameId" class="form-select" asp-items="ViewBag.GameId"></select>
-                    }
-                </div>
-                <div class="mb-3">
-                    <label asp-for="UserId" class="form-label text-info"></label>
-                    <select asp-for="UserId" class="form-select" asp-items="ViewBag.UserId"></select>
+                    <input type="hidden" asp-for="GameId" />
                 </div>
                 <div class="mb-3">
                     <label asp-for="Rating" class="form-label text-info"></label>
                     <input asp-for="Rating" type="number" min="1" max="10" class="form-control" />
                     <span asp-validation-for="Rating" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="CreatedDate" class="form-label text-info"></label>
-                    <input asp-for="CreatedDate" type="datetime-local" class="form-control" />
-                    <span asp-validation-for="CreatedDate" class="text-danger"></span>
                 </div>
                 <div class="mb-4">
                     <label asp-for="Content" class="form-label text-info"></label>
@@ -54,7 +30,7 @@ else
                 </div>
                 <div class="mt-2">
                     <input type="submit" value="Створити" class="btn btn-primary" />
-                    <a asp-action="Index" class="btn btn-secondary ms-2">Назад до списку</a>
+                    <a asp-controller="Games" asp-action="Details" asp-route-id="@ViewBag.GameId" class="btn btn-secondary ms-2">Скасувати</a>
                 </div>
             </form>
         </div>

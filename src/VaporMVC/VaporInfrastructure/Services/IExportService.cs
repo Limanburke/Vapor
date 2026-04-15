@@ -7,5 +7,4 @@ namespace VaporInfrastructure.Services
     {
         Task WriteToAsync(Stream stream, CancellationToken cancellationToken);
     }
-
 }

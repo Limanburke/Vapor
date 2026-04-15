@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Доступ заборонено";
+}
+
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-8 col-lg-6 text-center">
+        <div class="card bg-dark border-danger shadow-lg p-5" style="border-radius: 15px;">
+            <h1 class="display-1 text-danger fw-bold mb-3">403</h1>
+            <h2 class="text-warning mb-4">Доступ заборонено</h2>
+            <p class="text-light fs-5 mb-5">
+                Вибачте, але у вас немає прав адміністратора для перегляду цієї сторінки.
+                Якщо ви вважаєте, що це помилка, зверніться до підтримки
+            </p>
+            <div>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-info btn-lg fw-bold"> Повернутися на головну </a>
+            </div>
+        </div>
+    </div>
+</div>

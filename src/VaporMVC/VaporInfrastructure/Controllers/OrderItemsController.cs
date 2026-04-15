@@ -40,7 +40,6 @@ namespace VaporInfrastructure.Controllers
                                   .Include(o => o.Game)
                                   .Include(o => o.Order)
                                   .FirstOrDefaultAsync(m => m.GameId == id);
-
             if (orderItem == null)
             {
                 return NotFound();
@@ -54,6 +53,7 @@ namespace VaporInfrastructure.Controllers
         {
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Title");
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id");
+
             return View();
         }
 
@@ -86,7 +86,6 @@ namespace VaporInfrastructure.Controllers
             }
 
             var orderItem = await _context.OrderItems.FindAsync(id);
-
             if (orderItem == null)
             {
                 return NotFound();
@@ -149,7 +148,6 @@ namespace VaporInfrastructure.Controllers
                                   .Include(o => o.Game)
                                   .Include(o => o.Order)
                                   .FirstOrDefaultAsync(m => m.GameId == id);
-
             if (orderItem == null)
             {
                 return NotFound();
@@ -164,7 +162,6 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var orderItem = await _context.OrderItems.FindAsync(id);
-
             if (orderItem != null)
             {
                 _context.OrderItems.Remove(orderItem);

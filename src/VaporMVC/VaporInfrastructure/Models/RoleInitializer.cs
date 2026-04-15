@@ -10,14 +10,17 @@ namespace VaporInfrastructure.Models
             string adminEmail = "admin@gmail.com";
             string password = "123456!Qq";
             string userName = "Burke";
+
             if (await roleManager.FindByNameAsync("admin") == null)
             {
                 await roleManager.CreateAsync(new IdentityRole<int>("admin"));
             }
+
             if (await roleManager.FindByNameAsync("user") == null)
             {
                 await roleManager.CreateAsync(new IdentityRole<int>("user"));
             }
+
             if (await userManager.FindByNameAsync(adminEmail) == null)
             {
                 User admin = new User { Email = adminEmail, UserName = userName };

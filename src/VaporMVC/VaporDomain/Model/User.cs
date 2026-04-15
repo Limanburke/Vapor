@@ -5,10 +5,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace VaporDomain.Model;
 
-public partial class User : IdentityUser<int> //Entity
+public partial class User : IdentityUser<int> //:Entity
 {
-    //public int Id { get; set; }
-
     //[Required(ErrorMessage = "Ім'я користувача є обов'язковим")]
     //[StringLength(50)]
     //[Display(Name = "Ім'я користувача")]

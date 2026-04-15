@@ -6,7 +6,6 @@ namespace VaporDomain.Model;
 
 public partial class Review : Entity
 {
-    //public int Id { get; set; }
     [Display(Name = "Гра")]
     public int GameId { get; set; }
     [Display(Name = "Користувач")]

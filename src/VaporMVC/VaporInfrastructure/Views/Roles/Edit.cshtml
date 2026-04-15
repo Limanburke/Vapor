@@ -16,7 +16,7 @@
                 <p class="fw-bold text-light mb-2">Оберіть ролі:</p>
                 @foreach (var role in Model.AllRoles)
                 {
-                    bool isChecked = Model.UserRoles.Contains(role.Name);
+                    bool isChecked = Model.UserRoles.Contains(role.Name!);
                     <div class="form-check mb-2">
                         <input type="checkbox" class="form-check-input" name="roles" value="@role.Name" id="role_@role.Name" @(isChecked ? "checked" : "") />
                         <label class="form-check-label text-light" for="role_@role.Name"> @role.Name </label>

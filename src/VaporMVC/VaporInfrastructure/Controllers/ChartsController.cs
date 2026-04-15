@@ -24,13 +24,12 @@ namespace VaporInfrastructure.Controllers
         cancellationToken)
         {
             var responseItems = await _context
-                .Games
-                .GroupBy(x => x.Publisher.Name)
-                .OrderByDescending(x => x.Count())
-                .Select(x =>
-                new CountGameByPublisherResponseItem(x.Key, x.Count()))
-                .Take(3)
-                .ToListAsync(cancellationToken);
+                               .Games
+                               .GroupBy(x => x.Publisher.Name)
+                               .OrderByDescending(x => x.Count())
+                               .Select(x => new CountGameByPublisherResponseItem(x.Key, x.Count()))
+                               .Take(3)
+                               .ToListAsync(cancellationToken);
 
             return new JsonResult(responseItems);
         }
@@ -39,15 +38,18 @@ namespace VaporInfrastructure.Controllers
         public async Task<JsonResult> GetGameByGenreAsync(CancellationToken
         cancellationToken)
         {
-            var responseItems = await _context.Games.SelectMany(game => game.Genres).GroupBy(gen => gen.Name).OrderByDescending(gen => gen.Count())
-                .Select(group => new CountGameByGenreResponseItem(group.Key, group.Count()))
-                .Take(3)
-                .ToListAsync(cancellationToken);
+            var responseItems = await _context
+                                .Games.SelectMany(game => game.Genres)
+                                .GroupBy(gen => gen.Name)
+                                .OrderByDescending(gen => gen.Count())
+                                .Select(group => new CountGameByGenreResponseItem(group.Key, group.Count()))
+                                .Take(3)
+                                .ToListAsync(cancellationToken);
 
             var item = await _context.Games.SelectMany(game => game.Genres).CountAsync(cancellationToken);
             var top3Sum = responseItems.Sum(x => x.Count);
-            var otherSum = item - top3Sum;
 
+            var otherSum = item - top3Sum;
             if (otherSum > 0)
             {
                 responseItems.Add(new CountGameByGenreResponseItem("Інші", otherSum));
@@ -60,7 +62,10 @@ namespace VaporInfrastructure.Controllers
         public async Task<JsonResult> GetOrdersByMonthAsync(CancellationToken
         cancellationToken, int? year)
         {
-            if (year == null) year = DateTime.Now.Year;
+            if (year == null) 
+            { 
+                year = DateTime.Now.Year;
+            }
 
             var dateDict = new Dictionary<int, int>
             {
@@ -69,22 +74,20 @@ namespace VaporInfrastructure.Controllers
             };
 
             var responseItems = await _context
-                .Orders
-                .Where(o => o.StatusId == 2 && o.CreatedDate.Year == year)
-                .GroupBy(order => order.CreatedDate.Month)
-                .OrderBy(group => group.Key)
-                    .Select(group => new { month = group.Key, count = group.Count() })
-                .ToListAsync(cancellationToken);
+                                .Orders
+                                .Where(o => o.StatusId == 2 && o.CreatedDate.Year == year)
+                                .GroupBy(order => order.CreatedDate.Month)
+                                .OrderBy(group => group.Key)
+                                .Select(group => new { month = group.Key, count = group.Count() })
+                                .ToListAsync(cancellationToken);
 
             foreach (var response in responseItems)
             {
                 dateDict[response.month] = response.count;
             }
 
-            return new JsonResult(dateDict.Values);
-
+            var orderedValues = dateDict.OrderBy(x => x.Key).Select(x => x.Value);
+            return new JsonResult(orderedValues);
         }
     }
-
 }
-

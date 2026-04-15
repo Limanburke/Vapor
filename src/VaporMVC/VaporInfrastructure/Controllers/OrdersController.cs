@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VaporDomain.Model;
 using VaporInfrastructure;
-using Microsoft.AspNetCore.Identity;
+using VaporInfrastructure.Models;
 
 namespace VaporInfrastructure.Controllers
 {
@@ -48,7 +48,6 @@ namespace VaporInfrastructure.Controllers
                               .Include(o => o.OrderItems)
                                 .ThenInclude(oi => oi.Game)
                               .FirstOrDefaultAsync(m => m.Id == id);
-
             if (order == null)
             {
                 return NotFound();
@@ -63,10 +62,9 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int? gameId)
         {
-            int currentUserId = int.Parse(_userManager.GetUserId(User));
+            int currentUserId = int.Parse(_userManager.GetUserId(User)!);
 
             var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
-
             if (game == null) 
             { 
                 return NotFound();
@@ -74,15 +72,13 @@ namespace VaporInfrastructure.Controllers
 
             var order = await _context.Orders
                               .Include(o => o.OrderItems)
-                              .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
-
+                              .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == (int)OrderStatusEnum.InCart);
             if (order == null)
             {
-
                 order = new Order
                 {
                     UserId = currentUserId,
-                    StatusId = 1,
+                    StatusId = (int)OrderStatusEnum.InCart,
                     CreatedDate = DateTime.UtcNow
                 };
 
@@ -91,7 +87,6 @@ namespace VaporInfrastructure.Controllers
             }
 
             var existingItems = order.OrderItems ?? new List<OrderItem>();
-
             if (!(existingItems.Any(o => o.GameId == gameId)))
             {
                 var orderItem = new OrderItem
@@ -105,23 +100,20 @@ namespace VaporInfrastructure.Controllers
                 await _context.SaveChangesAsync();
             }
 
-
             return RedirectToAction("Details", "Games", new { id = gameId });
         }
 
         public async Task<IActionResult> Cart()
         {
-            int currentUserId = int.Parse(_userManager.GetUserId(User));
-
+            int currentUserId = int.Parse(_userManager.GetUserId(User)!);
             var cart = await _context.Orders
                              .Include(o => o.OrderItems)
                              .ThenInclude(g => g.Game)
-                             .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
+                             .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == (int)OrderStatusEnum.InCart);
 
             ViewBag.totalPrice = cart?.OrderItems.Sum(o => o.Price) ?? 0;
             ViewBag.hasOrderItems = !(cart?.OrderItems.Any() ?? false);
             
-
             return View(cart);
         }
 
@@ -129,15 +121,14 @@ namespace VaporInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteFromCart(int? gameId)
         {
-            int currentUserId = int.Parse(_userManager.GetUserId(User));
+            int currentUserId = int.Parse(_userManager.GetUserId(User)!);
 
             var cart = await _context.Orders
                              .Include(o => o.OrderItems)
-                             .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == 1);
-
+                             .FirstOrDefaultAsync(o => o.UserId == currentUserId && o.StatusId == (int)OrderStatusEnum.InCart);
             var itemToRemove = cart?.OrderItems.FirstOrDefault(g => g.GameId == gameId);
 
-            if (itemToRemove != null)
+            if (cart != null && itemToRemove != null)
             {
                 cart.OrderItems.Remove(itemToRemove);
                 _context.OrderItems.Remove(itemToRemove);
@@ -156,14 +147,13 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            int currentUserId = int.Parse(_userManager.GetUserId(User));
+            int currentUserId = int.Parse(_userManager.GetUserId(User)!);
 
             var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == currentUserId);
-
             if (order != null && order.OrderItems.Any())
             {
                 order.CreatedDate = DateTime.UtcNow;
-                order.StatusId = 2;
+                order.StatusId = (int)OrderStatusEnum.Paid;
                 _context.Orders.Update(order);
                 await _context.SaveChangesAsync();
             }
@@ -173,100 +163,14 @@ namespace VaporInfrastructure.Controllers
 
         public async Task<IActionResult> Library()
         {
-            int currentUserId = int.Parse(_userManager.GetUserId(User));
-
+            int currentUserId = int.Parse(_userManager.GetUserId(User)!);
             var library = await _context.Orders
                                 .Include(o => o.OrderItems)
                                 .ThenInclude(g => g.Game)
-                                .Where(o => o.UserId == currentUserId && o.StatusId == 2).ToArrayAsync();
+                                .Where(o => o.UserId == currentUserId && o.StatusId == (int)OrderStatusEnum.Paid).ToArrayAsync();
 
             return View(library);
         }
-
-
-        // GET: Orders/Create
-        //public IActionResult Create()
-        //{
-        //    ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name");
-        //    ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email");
-        //    return View();
-        //}
-
-        // POST: Orders/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("UserId,StatusId,CreatedDate,Id")] Order order)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(order);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", order.StatusId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", order.UserId);
-        //    return View(order);
-        //}
-
-        // GET: Orders/Edit/5
-
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var order = await _context.Orders.FindAsync(id);
-        //    if (order == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", order.StatusId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", order.UserId);
-        //    return View(order);
-        //}
-
-        // POST: Orders/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("UserId,StatusId,CreatedDate,Id")] Order order)
-        //{
-        //    if (id != order.Id)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(order);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!OrderExists(order.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", order.StatusId);
-        //    ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", order.UserId);
-        //    return View(order);
-        //}
 
         // GET: Orders/Delete/5
         [Authorize(Roles = "admin")]
@@ -283,8 +187,6 @@ namespace VaporInfrastructure.Controllers
                               .Include(o => o.OrderItems)
                               .ThenInclude(oi => oi.Game)
                               .FirstOrDefaultAsync(m => m.Id == id);
-
-
             if (order == null)
             {
                 return NotFound();
@@ -296,14 +198,12 @@ namespace VaporInfrastructure.Controllers
         }
 
         // POST: Orders/Delete/5
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(m => m.Id == id);
-
             if (order != null)
             {
                 foreach (var item in order.OrderItems)
@@ -316,7 +216,6 @@ namespace VaporInfrastructure.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
         private bool OrderExists(int id)
         {
             return _context.Orders.Any(e => e.Id == id);

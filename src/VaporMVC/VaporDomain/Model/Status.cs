@@ -6,8 +6,6 @@ namespace VaporDomain.Model;
 
 public partial class Status: Entity
 {
-    //public int Id { get; set; }
-
     [Display(Name = "Статус")]
     public string Name { get; set; } = null!;
 

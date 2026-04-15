@@ -59,7 +59,6 @@ namespace VaporInfrastructure.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken)
         {
-
             if (fileExcel == null || fileExcel.Length == 0)
             {
                 TempData["ErrorMessage"] = "Оберіть файл для імпорту";
@@ -93,9 +92,7 @@ namespace VaporInfrastructure.Controllers
             var exportService = _gameDataPortServiceFactory.GetExportService(contentType);
 
             var memoryStream = new MemoryStream();
-
             await exportService.WriteToAsync(memoryStream, cancellationToken);
-
             await memoryStream.FlushAsync(cancellationToken);
             memoryStream.Position = 0;
 
@@ -114,26 +111,34 @@ namespace VaporInfrastructure.Controllers
                 return NotFound();
             }
 
-            int currentUserId = int.Parse(_userManager.GetUserId(User));
-
             var game = await _context.Games
-                .Include(g => g.Publisher)
-                .Include(g => g.Genres)
-                .Include(g => g.PriceHistories)
-                .Include(g => g.OrderItems)
-                .Include(g => g.Reviews)
-                    .ThenInclude(r => r.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                       .Include(g => g.Publisher)
+                       .Include(g => g.Genres)
+                       .Include(g => g.PriceHistories)
+                       .Include(g => g.OrderItems)
+                       .Include(g => g.Reviews)
+                       .ThenInclude(r => r.User)
+                       .FirstOrDefaultAsync(m => m.Id == id);
 
             if (game == null)
             {
                 return NotFound();
             }
 
-            ViewBag.hasOrderItems = await _context.OrderItems.AnyAsync(
-                                           o => o.GameId == id &&
-                                           o.Order.UserId == currentUserId &&
-                                           o.Order.StatusId != 3);
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                int currentUserId = int.Parse(_userManager.GetUserId(User)!);
+
+                ViewBag.CurrentUserId = currentUserId;
+                ViewBag.hasOrderItems = await _context.OrderItems.AnyAsync(
+                                               o => o.GameId == id &&
+                                               o.Order.UserId == currentUserId &&
+                                               o.Order.StatusId != 3);
+            }
+            else
+            {
+                ViewBag.hasOrderItems = false;
+            }
 
             return View(game);
         }
@@ -169,7 +174,6 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> Create([Bind("PublisherId,Title,IsAvailable,Description,Price,ReleasedDate,Id")] Game game, int[] selectedGenres)
         {
             var publisher = _context.Publishers.FirstOrDefault(p => p.Id == game.PublisherId);
-
             if (publisher != null)
             {
                 game.Publisher = publisher;
@@ -244,14 +248,12 @@ namespace VaporInfrastructure.Controllers
             var gameToUpdate = await _context.Games
                                      .Include(g => g.Genres)
                                      .FirstOrDefaultAsync(g => g.Id == id);
-
             if (gameToUpdate == null)
             {
                 return NotFound();
             }
 
             var publisher = _context.Publishers.FirstOrDefault(p => p.Id == game.PublisherId);
-
             if (publisher != null) 
             { 
                 game.Publisher = publisher;
@@ -298,7 +300,6 @@ namespace VaporInfrastructure.Controllers
                         }
                     }
 
-                    //_context.Update(game);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -334,7 +335,6 @@ namespace VaporInfrastructure.Controllers
                              .Include(g => g.Publisher)
                              .Include(g => g.Genres)
                              .FirstOrDefaultAsync(m => m.Id == id);
-
             if (game == null)
             {
                 return NotFound();
@@ -354,10 +354,8 @@ namespace VaporInfrastructure.Controllers
             var game = await _context.Games
                              .Include(g => g.Genres)
                              .FirstOrDefaultAsync(m => m.Id == id);
-
             if (game != null)
             {
-
                 try
                 {
                     game.Genres.Clear();
@@ -373,7 +371,6 @@ namespace VaporInfrastructure.Controllers
                                                   .FirstOrDefaultAsync(m => m.Id == id);
 
                     ViewBag.ErrorMessage = "Неможливо видалити цю гру, оскільки до неї прив'язані коментарі або вона наявна в замовленні.";
-
                     ViewBag.GameTitle = gameWithRelations?.Title;
 
                     return View("Delete", gameWithRelations);
@@ -382,7 +379,6 @@ namespace VaporInfrastructure.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
         private bool GameExists(int id)
         {
             return _context.Games.Any(e => e.Id == id);

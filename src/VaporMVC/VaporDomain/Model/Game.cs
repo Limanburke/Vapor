@@ -8,8 +8,6 @@ namespace VaporDomain.Model;
 
 public partial class Game : Entity
 {
-    //public int Id { get; set; }
-
     [DisplayName("Видавець")]
     public int PublisherId { get; set; }
 

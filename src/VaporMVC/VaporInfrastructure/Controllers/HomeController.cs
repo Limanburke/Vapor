@@ -22,7 +22,6 @@ namespace VaporInfrastructure.Controllers
                             .Include(g => g.Genres)
                             .Where(g => g.IsAvailable == true)
                             .AsQueryable();
-
             if (!string.IsNullOrEmpty(searchString))
             {
                 gamesQuery = gamesQuery.Where(g => g.Title.Contains(searchString));
@@ -48,7 +47,6 @@ namespace VaporInfrastructure.Controllers
                               .ToListAsync();
 
             if (!years.Any()) years.Add(DateTime.Now.Year);
-
             int selectedYear = year ?? years.First();
 
             ViewBag.Years = years;

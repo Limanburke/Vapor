@@ -36,7 +36,6 @@ namespace VaporInfrastructure.Controllers
             }
 
             var publisher = await _context.Publishers.FirstOrDefaultAsync(m => m.Id == id);
-
             if (publisher == null)
             {
                 return NotFound();
@@ -82,7 +81,6 @@ namespace VaporInfrastructure.Controllers
             }
 
             var publisher = await _context.Publishers.FindAsync(id);
-
             if (publisher == null)
             {
                 return NotFound();
@@ -155,7 +153,6 @@ namespace VaporInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var publisher = await _context.Publishers.FindAsync(id);
-
             if (publisher != null)
             {
                 try

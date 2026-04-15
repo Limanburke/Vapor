@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VaporDomain.Model;
 
-public partial class OrderItem// : Entity
+public partial class OrderItem
 {
     public int GameId { get; set; }
 

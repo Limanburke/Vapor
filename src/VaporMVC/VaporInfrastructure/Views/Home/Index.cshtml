@@ -92,7 +92,7 @@
             </div>
         </div>
     }
-
+    </div>
     <h2 class="mt-5 mb-4 text-info">Статистика магазину</h2>
 
     <div class="row mb-5">
@@ -208,8 +208,8 @@
 
             const monthNames = ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру'];
 
-            for (let i = 1; i <= 12; i++) {
-            dataTable.addRow([monthNames[i - 1], data[i]]);
+            for (let i = 0; i < 12; i++) {
+            dataTable.addRow([monthNames[i], data[i]]);
             }
 
             const options = {

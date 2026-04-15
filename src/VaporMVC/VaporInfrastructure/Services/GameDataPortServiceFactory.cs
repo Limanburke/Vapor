@@ -29,6 +29,5 @@ namespace VaporInfrastructure.Services
             }
             throw new NotImplementedException($"No export service implemented {contentType}");
         }
-
     }
 }

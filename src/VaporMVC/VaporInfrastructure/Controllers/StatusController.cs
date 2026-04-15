@@ -36,7 +36,6 @@ namespace VaporInfrastructure.Controllers
             }
 
             var status = await _context.Statuses.FirstOrDefaultAsync(m => m.Id == id);
-
             if (status == null)
             {
                 return NotFound();

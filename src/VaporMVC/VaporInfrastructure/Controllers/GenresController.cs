@@ -15,7 +15,6 @@ namespace VaporInfrastructure.Controllers
     public class GenresController : Controller
     {
         private readonly VaporContext _context;
-
         public GenresController(VaporContext context)
         {
             _context = context;
@@ -39,7 +38,6 @@ namespace VaporInfrastructure.Controllers
             var genre = await _context.Genres
                               .Include(g => g.Games)
                               .FirstOrDefaultAsync(m => m.Id == id);
-
             if (genre == null)
             {
                 return NotFound();
@@ -84,7 +82,6 @@ namespace VaporInfrastructure.Controllers
             }
 
             var genre = await _context.Genres.FindAsync(id);
-
             if (genre == null)
             {
                 return NotFound();
@@ -106,7 +103,6 @@ namespace VaporInfrastructure.Controllers
             }
 
             bool isDuplicate = _context.Genres.Any(g => g.Name.ToLower() == genre.Name.ToLower() && g.Id != genre.Id);
-
             if (isDuplicate)
             {
                 ModelState.AddModelError("Name", "Інший жанр з такою назвою вже існує!");
@@ -144,7 +140,6 @@ namespace VaporInfrastructure.Controllers
             }
 
             var genre = await _context.Genres.FirstOrDefaultAsync(m => m.Id == id);
-
             if (genre == null)
             {
                 return NotFound();
@@ -163,11 +158,10 @@ namespace VaporInfrastructure.Controllers
             var genre = await _context.Genres
                                 .Include(g => g.Games)
                                 .FirstOrDefaultAsync(m => m.Id == id);
-
             if (genre != null)
             {
                 ViewBag.GenreName = genre?.Name;
-                if (genre.Games.Any())
+                if (genre!.Games.Any())
                 {
                     ViewBag.ErrorMessage = $"Неможливо видалити жанр \"{genre.Name}\", оскільки до нього прив'язано {genre.Games.Count} ігор.";
                     return View("Delete", genre);

@@ -22,7 +22,7 @@ namespace VaporInfrastructure.Controllers
 
         public async Task<IActionResult> Edit(string userId)
         {
-            User user = await _userManager.FindByIdAsync(userId);
+            User? user = await _userManager.FindByIdAsync(userId);
             if (user != null)
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -30,7 +30,7 @@ namespace VaporInfrastructure.Controllers
                 ChangeRoleViewModel model = new ChangeRoleViewModel
                 {
                     UserId = (user.Id).ToString(),
-                    UserEmail = user.Email,
+                    UserEmail = user.Email!,
                     UserRoles = userRoles,
                     AllRoles = allRoles
                 };
@@ -43,7 +43,7 @@ namespace VaporInfrastructure.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(string userId, List<string> roles)
         {
-            User user = await _userManager.FindByIdAsync(userId);
+            User? user = await _userManager.FindByIdAsync(userId);
             if (user != null)
             {
                 var userRoles = await _userManager.GetRolesAsync(user);

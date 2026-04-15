@@ -30,7 +30,6 @@ namespace VaporInfrastructure.Controllers
             if (ModelState.IsValid)
             {
                 var existingUser = await _userManager.FindByEmailAsync(model.Email);
-
                 if (existingUser != null)
                 {
                     ModelState.AddModelError(string.Empty, "Дана пошта вже зареєстрована");
@@ -38,8 +37,8 @@ namespace VaporInfrastructure.Controllers
                 }
 
                 User user = new User { Email = model.Email, UserName = model.UserName };
-                var result = await _userManager.CreateAsync(user, model.Password);
 
+                var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, false);
@@ -57,7 +56,7 @@ namespace VaporInfrastructure.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
             return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
@@ -69,11 +68,9 @@ namespace VaporInfrastructure.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-
                 if (user != null)
                 {
-                    var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
-
+                    var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password, model.RememberMe, false);
                     if (result.Succeeded)
                     {
                         if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
@@ -91,7 +88,6 @@ namespace VaporInfrastructure.Controllers
                         return View(model);
                     }
                 }
-
                 ModelState.AddModelError(string.Empty, "Неправильна пошта або пароль");
             }
             return View(model);
@@ -103,6 +99,12 @@ namespace VaporInfrastructure.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }
