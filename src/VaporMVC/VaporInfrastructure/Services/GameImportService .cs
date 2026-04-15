@@ -23,8 +23,9 @@ namespace VaporInfrastructure.Services
             using (var workbook = new XLWorkbook(stream))
             {
                 int rowNumber = 1;
-
                 var worksheet = workbook.Worksheet(1);
+                var importedTitles = new List<string>();
+
                 foreach (var row in worksheet.RowsUsed().Skip(1))
                 {
                     rowNumber++;
@@ -40,7 +41,14 @@ namespace VaporInfrastructure.Services
                         throw new InvalidDataException($"Помилка у рядку {rowNumber}: Назва гри не може перевищувати 200 символів");
                     }
 
-                    var game = await _context.Games.FirstOrDefaultAsync(g => g.Title == gameTitle, cancellationToken);
+                    if(importedTitles.Contains(gameTitle.ToLower()))
+                    {
+                        throw new InvalidDataException($"Помилка у рядку {rowNumber}: Гра з назвою '{gameTitle}' дублюється всередині файлу");
+                    }
+
+                    importedTitles.Add(gameTitle.ToLower());
+
+                    var game = await _context.Games.FirstOrDefaultAsync(g => g.Title.ToLower() == gameTitle, cancellationToken);
                     if (game == null)
                     {
                         game = new Game();
